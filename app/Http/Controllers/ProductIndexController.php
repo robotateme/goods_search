@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 
 namespace App\Http\Controllers;
 
@@ -45,8 +47,8 @@ class ProductIndexController extends Controller
         $paginator = $this->handler
             ->handle(new SearchProductsQuery(
                 $filters,
-                $filters['per_page'] ?? 15,
-                $filters['page'] ?? 1,
+                isset($filters['per_page']) ? (int) $filters['per_page'] : 15,
+                isset($filters['page']) ? (int) $filters['page'] : 1,
             ))
             ->appends($request->query());
 

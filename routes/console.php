@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 
 use Application\Contracts\Search\ProductSearchIndexer;
 use Illuminate\Console\Command;

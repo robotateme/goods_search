@@ -7,6 +7,7 @@
 - фильтрация по `q`, `price_from`, `price_to`, `category_id`, `in_stock`, `rating_from`
 - сортировка `price_asc`, `price_desc`, `rating_desc`, `newest`
 - обязательная пагинация
+- `declare(strict_types=1);` во всем проектном PHP-коде
 - Redis-очереди
 - `QueueBus` как порт в `Application` и реализация в `Infrastructure`
 - поиск по `q` через Meilisearch
@@ -159,7 +160,7 @@ php artisan test
 Статический анализ:
 
 ```bash
-vendor/bin/phpstan analyse src tests routes database --no-progress --memory-limit=512M
+vendor/bin/phpstan analyse app src tests routes database --no-progress --memory-limit=512M
 ```
 
 Тестовое окружение использует `SEARCH_DRIVER=database`, поэтому тесты не зависят от живого Meilisearch.
@@ -185,5 +186,5 @@ php artisan route:list --path=api
 php artisan search:products:sync
 php artisan search:products:import
 php artisan test
-vendor/bin/phpstan analyse src tests routes database --no-progress --memory-limit=512M
+vendor/bin/phpstan analyse app src tests routes database --no-progress --memory-limit=512M
 ```
