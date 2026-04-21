@@ -1,58 +1,185 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Goods Search
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Тестовое Laravel-приложение с HTTP API для поиска товаров.
 
-## About Laravel
+Реализовано:
+- `GET /api/products`
+- фильтрация по `q`, `price_from`, `price_to`, `category_id`, `in_stock`, `rating_from`
+- сортировка `price_asc`, `price_desc`, `rating_desc`, `newest`
+- обязательная пагинация
+- Redis-очереди
+- `QueueBus` как порт в `Application` и реализация в `Infrastructure`
+- поиск по `q` через Meilisearch
+- индексирование, вынесенное в `Infrastructure`
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Стек
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.3+
+- Laravel 13
+- PostgreSQL
+- Redis
+- Meilisearch
+- Docker Compose / Laravel Sail
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## API
 
-## Learning Laravel
+Endpoint:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```text
+GET /api/products
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Поля товара:
+- `id`
+- `name`
+- `price`
+- `category_id`
+- `in_stock`
+- `rating`
+- `created_at`
+- `updated_at`
 
-## Contributing
+Query-параметры:
+- `q` — полнотекстовый поисковый запрос через Meilisearch
+- `price_from`
+- `price_to`
+- `category_id`
+- `in_stock=true|false`
+- `rating_from`
+- `sort=price_asc|price_desc|rating_desc|newest`
+- `page`
+- `per_page`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Пример:
 
-## Code of Conduct
+```text
+GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=true&rating_from=4&sort=price_asc&page=1&per_page=20
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Если `q` передан, поиск идет через инфраструктурный Meilisearch-адаптер. Если `q` пустой, используется database fallback.
 
-## Security Vulnerabilities
+## Архитектура
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Поиск и индексирование вынесены из контроллера и модели в отдельные слои:
 
-## License
+- порт поиска: [src/Application/Contracts/Search/ProductSearch.php](src/Application/Contracts/Search/ProductSearch.php)
+- порт индексирования: [src/Application/Contracts/Search/ProductSearchIndexer.php](src/Application/Contracts/Search/ProductSearchIndexer.php)
+- Meilisearch search adapter: [src/Infrastructure/Search/MeilisearchProductSearch.php](src/Infrastructure/Search/MeilisearchProductSearch.php)
+- Meilisearch indexer: [src/Infrastructure/Search/MeilisearchProductSearchIndexer.php](src/Infrastructure/Search/MeilisearchProductSearchIndexer.php)
+- database fallback search: [src/Infrastructure/Search/DatabaseProductSearch.php](src/Infrastructure/Search/DatabaseProductSearch.php)
+- document mapper: [src/Infrastructure/Search/ProductSearchDocumentMapper.php](src/Infrastructure/Search/ProductSearchDocumentMapper.php)
+- observer для автоиндексации: [src/Infrastructure/Search/ProductObserver.php](src/Infrastructure/Search/ProductObserver.php)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Очереди:
+
+- порт: [src/Application/Contracts/Queue/QueueBus.php](src/Application/Contracts/Queue/QueueBus.php)
+- реализация: [src/Infrastructure/Queue/LaravelQueueBus.php](src/Infrastructure/Queue/LaravelQueueBus.php)
+
+Laravel-specific классы тоже вынесены в `src/`:
+
+- контроллер: [src/Http/Controllers/ProductIndexController.php](src/Http/Controllers/ProductIndexController.php)
+- модели: [src/Models](src/Models)
+- service provider: [src/Providers/AppServiceProvider.php](src/Providers/AppServiceProvider.php)
+
+DI-привязки находятся в [src/Providers/AppServiceProvider.php](src/Providers/AppServiceProvider.php).
+
+Каталог `app/` больше не используется как место для проектного кода. Laravel `app_path()` перенастроен на `src/` в [bootstrap/app.php](bootstrap/app.php).
+
+## Запуск
+
+Поднять окружение:
+
+```bash
+./vendor/bin/sail up -d
+```
+
+Установить зависимости:
+
+```bash
+composer install
+```
+
+Применить миграции:
+
+```bash
+./vendor/bin/sail artisan migrate
+```
+
+## Redis Queue
+
+В `compose.yaml` добавлен отдельный сервис `queue`, который запускает worker:
+
+```bash
+php artisan queue:work redis --queue=default --sleep=1 --tries=3
+```
+
+Основные переменные:
+
+```env
+QUEUE_CONNECTION=redis
+REDIS_HOST=redis
+REDIS_QUEUE_CONNECTION=default
+REDIS_QUEUE=default
+REDIS_QUEUE_RETRY_AFTER=90
+```
+
+## Meilisearch
+
+Поисковый драйвер:
+
+```env
+SEARCH_DRIVER=meilisearch
+SEARCH_PRODUCTS_INDEX=products
+MEILISEARCH_HOST=http://meilisearch:7700
+```
+
+Настройки индекса лежат в [config/search.php](config/search.php).
+
+После старта контейнеров нужно синхронизировать настройки индекса и импортировать товары:
+
+```bash
+./vendor/bin/sail artisan search:products:sync
+./vendor/bin/sail artisan search:products:import
+```
+
+Эти команды используют инфраструктурный индексатор, а не код контроллера или модели.
+
+## Тесты и проверка
+
+Запуск тестов:
+
+```bash
+php artisan test
+```
+
+Статический анализ:
+
+```bash
+vendor/bin/phpstan analyse src tests routes database --no-progress --memory-limit=512M
+```
+
+Тестовое окружение использует `SEARCH_DRIVER=database`, поэтому тесты не зависят от живого Meilisearch.
+
+## Docker services
+
+В `compose.yaml` описаны сервисы:
+- `laravel.test`
+- `pgsql`
+- `redis`
+- `meilisearch`
+- `queue`
+
+Проверить маршрут API:
+
+```bash
+php artisan route:list --path=api
+```
+
+## Полезные команды
+
+```bash
+php artisan search:products:sync
+php artisan search:products:import
+php artisan test
+vendor/bin/phpstan analyse src tests routes database --no-progress --memory-limit=512M
+```

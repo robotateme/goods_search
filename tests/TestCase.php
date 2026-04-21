@@ -17,5 +17,6 @@ abstract class TestCase extends BaseTestCase
         Config::set('cache.default', 'array');
         Config::set('queue.default', 'sync');
         Config::set('mail.default', 'array');
+        Config::set('search.driver', 'database');
     }
 }

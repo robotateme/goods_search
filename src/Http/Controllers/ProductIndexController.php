@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use Application\Contracts\Search\ProductSearch;
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class ProductIndexController extends Controller
 {
+    public function __construct(
+        private readonly ProductSearch $productSearch,
+    ) {
+    }
+
     public function __invoke(Request $request): JsonResponse
     {
         $filters = $request->validate([
@@ -36,26 +44,41 @@ class ProductIndexController extends Controller
             $filters['in_stock'] = $normalizedInStock;
         }
 
+        $paginator = filled($filters['q'] ?? null)
+            ? $this->productSearch->search(
+                $filters,
+                $filters['per_page'] ?? 15,
+                $filters['page'] ?? 1,
+            )->appends($request->query())
+            : $this->searchWithDatabase($filters, $request);
+
+        return response()->json($paginator);
+    }
+
+    private function searchWithDatabase(array $filters, Request $request): LengthAwarePaginator
+    {
         $query = Product::query()
             ->with('category')
-            ->searchName($filters['q'] ?? null)
-            ->when(isset($filters['price_from']), fn ($builder) => $builder->where('price', '>=', $filters['price_from']))
-            ->when(isset($filters['price_to']), fn ($builder) => $builder->where('price', '<=', $filters['price_to']))
-            ->when(isset($filters['category_id']), fn ($builder) => $builder->where('category_id', $filters['category_id']))
-            ->when(isset($filters['in_stock']), fn ($builder) => $builder->where('in_stock', $filters['in_stock']))
-            ->when(isset($filters['rating_from']), fn ($builder) => $builder->where('rating', '>=', $filters['rating_from']));
+            ->when(isset($filters['price_from']), fn (EloquentBuilder $builder) => $builder->where('price', '>=', $filters['price_from']))
+            ->when(isset($filters['price_to']), fn (EloquentBuilder $builder) => $builder->where('price', '<=', $filters['price_to']))
+            ->when(isset($filters['category_id']), fn (EloquentBuilder $builder) => $builder->where('category_id', $filters['category_id']))
+            ->when(isset($filters['in_stock']), fn (EloquentBuilder $builder) => $builder->where('in_stock', $filters['in_stock']))
+            ->when(isset($filters['rating_from']), fn (EloquentBuilder $builder) => $builder->where('rating', '>=', $filters['rating_from']));
 
-        match ($filters['sort'] ?? 'newest') {
+        $this->applyDatabaseSort($query, $filters['sort'] ?? 'newest');
+
+        return $query
+            ->paginate($filters['per_page'] ?? 15)
+            ->appends($request->query());
+    }
+
+    private function applyDatabaseSort(EloquentBuilder $query, string $sort): void
+    {
+        match ($sort) {
             'price_asc' => $query->orderBy('price')->orderBy('id'),
             'price_desc' => $query->orderByDesc('price')->orderBy('id'),
             'rating_desc' => $query->orderByDesc('rating')->orderBy('id'),
             default => $query->orderByDesc('created_at')->orderByDesc('id'),
         };
-
-        $paginator = $query
-            ->paginate($filters['per_page'] ?? 15)
-            ->appends($request->query());
-
-        return response()->json($paginator);
     }
 }

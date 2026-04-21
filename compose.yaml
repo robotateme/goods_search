@@ -26,6 +26,29 @@ services:
             - pgsql
             - redis
             - meilisearch
+    queue:
+        build:
+            context: ./vendor/laravel/sail/runtimes/8.5
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: sail-8.5/app
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            SUPERVISOR_PHP_USER: '${SUPERVISOR_PHP_USER:-root}'
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - pgsql
+            - redis
+        command: php artisan queue:work redis --queue=${REDIS_QUEUE:-default} --sleep=1 --tries=3 --timeout=${REDIS_QUEUE_RETRY_AFTER:-90}
+        restart: unless-stopped
     pgsql:
         image: 'postgres:18-alpine'
         ports:
