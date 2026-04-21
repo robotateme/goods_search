@@ -7,6 +7,7 @@
 - фильтрация по `q`, `price_from`, `price_to`, `category_id`, `in_stock`, `rating_from`
 - сортировка `price_asc`, `price_desc`, `rating_desc`, `newest`
 - обязательная пагинация
+- отдельный `Domain` слой для поиска товаров
 - `declare(strict_types=1);` во всем проектном PHP-коде
 - Redis-очереди
 - `QueueBus` как порт в `Application` и реализация в `Infrastructure`
@@ -63,10 +64,16 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 
 Поиск и индексирование вынесены из контроллера и модели в отдельные слои:
 
+- domain entity: [src/Domain/Product/Product.php](src/Domain/Product/Product.php)
+- domain criteria: [src/Domain/Product/ProductSearchCriteria.php](src/Domain/Product/ProductSearchCriteria.php)
+- domain sort enum: [src/Domain/Product/ProductSort.php](src/Domain/Product/ProductSort.php)
+- domain page result: [src/Domain/Product/ProductPage.php](src/Domain/Product/ProductPage.php)
 - query: [src/Application/Queries/SearchProductsQuery.php](src/Application/Queries/SearchProductsQuery.php)
 - handler: [src/Application/Handlers/SearchProductsHandler.php](src/Application/Handlers/SearchProductsHandler.php)
 - порт поиска: [src/Application/Contracts/Search/ProductSearch.php](src/Application/Contracts/Search/ProductSearch.php)
 - порт индексирования: [src/Application/Contracts/Search/ProductSearchIndexer.php](src/Application/Contracts/Search/ProductSearchIndexer.php)
+- контракт репозитория: [src/Application/Contracts/Repositories/ProductRepositoryInterface.php](src/Application/Contracts/Repositories/ProductRepositoryInterface.php)
+- Eloquent-репозиторий: [src/Infrastructure/Persistence/ProductRepository.php](src/Infrastructure/Persistence/ProductRepository.php)
 - Meilisearch search adapter: [src/Infrastructure/Search/MeilisearchProductSearch.php](src/Infrastructure/Search/MeilisearchProductSearch.php)
 - Meilisearch indexer: [src/Infrastructure/Search/MeilisearchProductSearchIndexer.php](src/Infrastructure/Search/MeilisearchProductSearchIndexer.php)
 - database fallback search: [src/Infrastructure/Search/DatabaseProductSearch.php](src/Infrastructure/Search/DatabaseProductSearch.php)
@@ -78,17 +85,19 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 - порт: [src/Application/Contracts/Queue/QueueBus.php](src/Application/Contracts/Queue/QueueBus.php)
 - реализация: [src/Infrastructure/Queue/LaravelQueueBus.php](src/Infrastructure/Queue/LaravelQueueBus.php)
 
-Laravel boundary остается в `app/`:
+Границы слоев:
 
-- контроллер: [app/Http/Controllers/ProductIndexController.php](app/Http/Controllers/ProductIndexController.php)
-- модели: [app/Models](app/Models)
-- service provider: [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php)
+- `app/` содержит Laravel boundary: HTTP/controllers, Eloquent models, service providers
+- `src/Domain` содержит типизированные доменные объекты поиска без зависимости на Laravel
+- `src/Application` содержит query/handler и порты
+- `src/Infrastructure` содержит Eloquent, Redis и Meilisearch адаптеры
 
-DI-привязки находятся в [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php).
+DI-привязки разнесены по провайдерам:
+- [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php) — bootstrapping observer
+- [app/Providers/RepositoryServiceProvider.php](app/Providers/RepositoryServiceProvider.php) — репозитории
+- [app/Providers/PortServiceProvider.php](app/Providers/PortServiceProvider.php) — порты и инфраструктурные адаптеры
 
-Прикладные и инфраструктурные порты/адаптеры остаются в `src/`.
-
-Контроллер не содержит поисковую бизнес-логику: он валидирует HTTP query params и передает выполнение в `SearchProductsHandler`.
+Контроллер не содержит поисковую бизнес-логику: он валидирует HTTP query params, маппит их в `ProductSearchCriteria`, вызывает `SearchProductsHandler` и сериализует `ProductPage` обратно в JSON.
 
 ## Запуск
 

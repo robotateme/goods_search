@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
 
-
 namespace Application\Handlers;
 
 use Application\Contracts\Search\ProductSearch;
 use Application\Queries\SearchProductsQuery;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Domain\Product\ProductPage;
 
 class SearchProductsHandler
 {
@@ -15,12 +14,8 @@ class SearchProductsHandler
     ) {
     }
 
-    public function handle(SearchProductsQuery $query): LengthAwarePaginator
+    public function handle(SearchProductsQuery $query): ProductPage
     {
-        return $this->productSearch->search(
-            $query->filters,
-            $query->perPage,
-            $query->page,
-        );
+        return $this->productSearch->search($query->criteria);
     }
 }

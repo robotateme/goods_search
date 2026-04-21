@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-
 namespace Infrastructure\Search;
 
+use Application\Contracts\Repositories\ProductRepositoryInterface;
 use Application\Contracts\Search\ProductSearchIndexer;
-use App\Models\Product;
+use Domain\Product\Product;
 use Meilisearch\Client;
 
 class MeilisearchProductSearchIndexer implements ProductSearchIndexer
@@ -13,6 +13,7 @@ class MeilisearchProductSearchIndexer implements ProductSearchIndexer
     public function __construct(
         private readonly Client $client,
         private readonly ProductSearchDocumentMapper $mapper,
+        private readonly ProductRepositoryInterface $products,
     ) {
     }
 
@@ -30,24 +31,22 @@ class MeilisearchProductSearchIndexer implements ProductSearchIndexer
     {
         $this->syncSettings();
 
-        Product::query()
-            ->orderBy('id')
-            ->chunk(500, function ($products): void {
-                $documents = $products
-                    ->map(fn (Product $product) => $this->mapper->map($product))
-                    ->all();
+        $this->products->chunkById(500, function ($products): void {
+            $documents = collect($products)
+                ->map(fn (Product $product) => $this->mapper->map($product))
+                ->all();
 
-                if ($documents !== []) {
-                    $this->client
-                        ->index((string) config('search.products.index'))
-                        ->addDocuments($documents, 'id');
-                }
-            });
+            if ($documents !== []) {
+                $this->client
+                    ->index((string) config('search.products.index'))
+                    ->addDocuments($documents, 'id');
+            }
+        });
     }
 
     public function index(int $productId): void
     {
-        $product = Product::query()->find($productId);
+        $product = $this->products->findById($productId);
 
         if ($product === null) {
             return;

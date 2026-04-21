@@ -1,11 +1,14 @@
 <?php
 declare(strict_types=1);
 
-
 namespace Infrastructure\Search;
 
+use Application\Contracts\Repositories\ProductRepositoryInterface;
 use Application\Contracts\Search\ProductSearch;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Domain\Product\Product;
+use Domain\Product\ProductPage;
+use Domain\Product\ProductSearchCriteria;
+use Domain\Product\ProductSort;
 use Meilisearch\Client;
 
 class MeilisearchProductSearch implements ProductSearch
@@ -13,76 +16,74 @@ class MeilisearchProductSearch implements ProductSearch
     public function __construct(
         private readonly Client $client,
         private readonly DatabaseProductSearch $databaseProductSearch,
+        private readonly ProductRepositoryInterface $products,
     ) {
     }
 
-    public function search(array $filters, int $perPage, int $page): LengthAwarePaginator
+    public function search(ProductSearchCriteria $criteria): ProductPage
     {
-        if (blank($filters['q'] ?? null)) {
-            return $this->databaseProductSearch->search($filters, $perPage, $page);
+        if (! $criteria->hasQuery()) {
+            return $this->databaseProductSearch->search($criteria);
         }
 
         $results = $this->client
             ->index((string) config('search.products.index'))
-            ->rawSearch($filters['q'] ?? '', array_filter([
-                'filter' => $this->buildFilterExpression($filters),
-                'sort' => $this->buildSort($filters['sort'] ?? 'newest'),
-                'hitsPerPage' => $perPage,
-                'page' => $page,
+            ->rawSearch($criteria->query ?? '', array_filter([
+                'filter' => $this->buildFilterExpression($criteria),
+                'sort' => $this->buildSort($criteria->sort),
+                'hitsPerPage' => $criteria->perPage,
+                'page' => $criteria->page,
             ]));
 
         $ids = collect($results['hits'] ?? [])->pluck('id')->map(fn (mixed $id) => (int) $id)->all();
         $positions = array_flip($ids);
 
-        $products = \App\Models\Product::query()
-            ->with('category')
-            ->whereIn('id', $ids)
-            ->get()
-            ->sortBy(fn (\App\Models\Product $product) => $positions[$product->getKey()] ?? PHP_INT_MAX)
-            ->values();
+        $products = collect($this->products->getByIds($ids))
+            ->sortBy(fn (Product $product) => $positions[$product->id] ?? PHP_INT_MAX)
+            ->values()
+            ->all();
 
-        return new LengthAwarePaginator(
+        return new ProductPage(
             $products,
             $results['totalHits'] ?? $results['estimatedTotalHits'] ?? count($ids),
-            $perPage,
-            $page,
-            ['path' => LengthAwarePaginator::resolveCurrentPath(), 'pageName' => 'page'],
+            $criteria->perPage,
+            $criteria->page,
         );
     }
 
-    private function buildFilterExpression(array $filters): ?string
+    private function buildFilterExpression(ProductSearchCriteria $criteria): ?string
     {
         $expressions = [];
 
-        if (isset($filters['price_from'])) {
-            $expressions[] = 'price >= '.$filters['price_from'];
+        if ($criteria->priceFrom !== null) {
+            $expressions[] = 'price >= '.$criteria->priceFrom;
         }
 
-        if (isset($filters['price_to'])) {
-            $expressions[] = 'price <= '.$filters['price_to'];
+        if ($criteria->priceTo !== null) {
+            $expressions[] = 'price <= '.$criteria->priceTo;
         }
 
-        if (isset($filters['category_id'])) {
-            $expressions[] = 'category_id = '.$filters['category_id'];
+        if ($criteria->categoryId !== null) {
+            $expressions[] = 'category_id = '.$criteria->categoryId;
         }
 
-        if (isset($filters['in_stock'])) {
-            $expressions[] = 'in_stock = '.($filters['in_stock'] ? 'true' : 'false');
+        if ($criteria->inStock !== null) {
+            $expressions[] = 'in_stock = '.($criteria->inStock ? 'true' : 'false');
         }
 
-        if (isset($filters['rating_from'])) {
-            $expressions[] = 'rating >= '.$filters['rating_from'];
+        if ($criteria->ratingFrom !== null) {
+            $expressions[] = 'rating >= '.$criteria->ratingFrom;
         }
 
         return $expressions === [] ? null : implode(' AND ', $expressions);
     }
 
-    private function buildSort(string $sort): array
+    private function buildSort(ProductSort $sort): array
     {
         return match ($sort) {
-            'price_asc' => ['price:asc'],
-            'price_desc' => ['price:desc'],
-            'rating_desc' => ['rating:desc'],
+            ProductSort::PriceAsc => ['price:asc'],
+            ProductSort::PriceDesc => ['price:desc'],
+            ProductSort::RatingDesc => ['rating:desc'],
             default => ['created_at_timestamp:desc'],
         };
     }

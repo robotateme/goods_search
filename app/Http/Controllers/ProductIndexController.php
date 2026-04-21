@@ -1,11 +1,14 @@
 <?php
 declare(strict_types=1);
 
-
 namespace App\Http\Controllers;
 
 use Application\Handlers\SearchProductsHandler;
 use Application\Queries\SearchProductsQuery;
+use Domain\Product\Product;
+use Domain\Product\ProductPage;
+use Domain\Product\ProductSearchCriteria;
+use Domain\Product\ProductSort;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -44,14 +47,55 @@ class ProductIndexController extends Controller
             $filters['in_stock'] = $normalizedInStock;
         }
 
-        $paginator = $this->handler
-            ->handle(new SearchProductsQuery(
-                $filters,
-                isset($filters['per_page']) ? (int) $filters['per_page'] : 15,
-                isset($filters['page']) ? (int) $filters['page'] : 1,
-            ))
-            ->appends($request->query());
+        $page = isset($filters['page']) ? (int) $filters['page'] : 1;
+        $perPage = isset($filters['per_page']) ? (int) $filters['per_page'] : 15;
+        $result = $this->handler->handle(new SearchProductsQuery(
+            $this->mapCriteria($filters, $perPage, $page),
+        ));
 
-        return response()->json($paginator);
+        return response()->json($this->toResponse($result, $request));
+    }
+
+    private function mapCriteria(array $filters, int $perPage, int $page): ProductSearchCriteria
+    {
+        return new ProductSearchCriteria(
+            query: $filters['q'] ?? null,
+            priceFrom: isset($filters['price_from']) ? (float) $filters['price_from'] : null,
+            priceTo: isset($filters['price_to']) ? (float) $filters['price_to'] : null,
+            categoryId: isset($filters['category_id']) ? (int) $filters['category_id'] : null,
+            inStock: $filters['in_stock'] ?? null,
+            ratingFrom: isset($filters['rating_from']) ? (float) $filters['rating_from'] : null,
+            sort: ProductSort::tryFrom((string) ($filters['sort'] ?? ProductSort::Newest->value)) ?? ProductSort::Newest,
+            perPage: $perPage,
+            page: $page,
+        );
+    }
+
+    private function toResponse(ProductPage $page, Request $request): array
+    {
+        return [
+            'current_page' => $page->currentPage,
+            'data' => array_map(fn (Product $product) => $this->serializeProduct($product), $page->items),
+            'from' => $page->from(),
+            'last_page' => $page->lastPage(),
+            'path' => $request->url(),
+            'per_page' => $page->perPage,
+            'to' => $page->to(),
+            'total' => $page->total,
+        ];
+    }
+
+    private function serializeProduct(Product $product): array
+    {
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'category_id' => $product->categoryId,
+            'in_stock' => $product->inStock,
+            'rating' => $product->rating,
+            'created_at' => $product->createdAt?->format(DATE_ATOM),
+            'updated_at' => $product->updatedAt?->format(DATE_ATOM),
+        ];
     }
 }

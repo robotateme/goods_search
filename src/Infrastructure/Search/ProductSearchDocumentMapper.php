@@ -1,24 +1,23 @@
 <?php
 declare(strict_types=1);
 
-
 namespace Infrastructure\Search;
 
-use App\Models\Product;
+use Domain\Product\Product;
 
 class ProductSearchDocumentMapper
 {
     public function map(Product $product): array
     {
         return [
-            'id' => $product->getKey(),
+            'id' => $product->id,
             'name' => $product->name,
-            'price' => (float) $product->getRawOriginal('price'),
-            'category_id' => $product->category_id,
-            'in_stock' => $product->in_stock,
+            'price' => (float) $product->price,
+            'category_id' => $product->categoryId,
+            'in_stock' => $product->inStock,
             'rating' => $product->rating,
-            'created_at_timestamp' => $product->created_at?->getTimestamp(),
-            'updated_at_timestamp' => $product->updated_at?->getTimestamp(),
+            'created_at_timestamp' => $product->createdAt?->getTimestamp(),
+            'updated_at_timestamp' => $product->updatedAt?->getTimestamp(),
         ];
     }
 }
