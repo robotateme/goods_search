@@ -2,10 +2,46 @@
 
 Тестовое Laravel-приложение с HTTP API для поиска товаров.
 
+## Задание
+
+Нужно было реализовать поиск по товарам с фильтрами и сортировкой через HTTP endpoint `GET /api/products`.
+
+Требования к товару:
+- `id`
+- `name`
+- `price`
+- `category_id`
+- `in_stock`
+- `rating`
+- `created_at`
+- `updated_at`
+
+Фильтры через query-параметры:
+- `q`
+- `price_from`
+- `price_to`
+- `category_id`
+- `in_stock`
+- `rating_from`
+
+Сортировка через параметр `sort`:
+- `price_asc`
+- `price_desc`
+- `rating_desc`
+- `newest`
+
+Дополнительные требования:
+- обязательная пагинация
+- решение в git-репозитории
+- качество решений на уровне production-подхода
+
+Что выбрано в этой реализации:
+- поиск остаётся синхронным и соответствует `GET /api/products`
+- очередь используется только для индексации и обслуживания search-инфраструктуры
+- поисковая логика вынесена из Laravel boundary в `Domain` / `Application` / `Infrastructure`
+
 Реализовано:
-- асинхронный поиск через очередь
-- `POST /api/product-searches`
-- `GET /api/product-searches/{id}`
+- `GET /api/products`
 - фильтрация по `q`, `price_from`, `price_to`, `category_id`, `in_stock`, `rating_from`
 - сортировка `price_asc`, `price_desc`, `rating_desc`, `newest`
 - обязательная пагинация
@@ -30,10 +66,20 @@
 Endpoint:
 
 ```text
-POST /api/product-searches
+GET /api/products
 ```
 
-Параметры запроса:
+Поля товара:
+- `id`
+- `name`
+- `price`
+- `category_id`
+- `in_stock`
+- `rating`
+- `created_at`
+- `updated_at`
+
+Query-параметры:
 - `q` — полнотекстовый поисковый запрос через Meilisearch
 - `price_from`
 - `price_to`
@@ -44,59 +90,13 @@ POST /api/product-searches
 - `page`
 - `per_page`
 
-Создание search job:
+Пример:
 
 ```text
-POST /api/product-searches
-{
-  "q": "mouse",
-  "price_from": 100,
-  "price_to": 300,
-  "category_id": 2,
-  "in_stock": "true",
-  "rating_from": 4,
-  "sort": "price_asc",
-  "page": 1,
-  "per_page": 20
-}
+GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=true&rating_from=4&sort=price_asc&page=1&per_page=20
 ```
 
-Ответ на создание:
-
-```json
-{
-  "id": "9d9020f5-ec7c-46b1-b72e-7f47f0c8d9d1",
-  "status": "pending",
-  "status_url": "http://localhost/api/product-searches/9d9020f5-ec7c-46b1-b72e-7f47f0c8d9d1"
-}
-```
-
-Проверка статуса и результата:
-
-```text
-GET /api/product-searches/{id}
-```
-
-Когда job завершён, endpoint возвращает `status=completed` и `result` с полями:
-- `current_page`
-- `data`
-- `from`
-- `last_page`
-- `per_page`
-- `to`
-- `total`
-
-Поля товара в `result.data`:
-- `id`
-- `name`
-- `price`
-- `category_id`
-- `in_stock`
-- `rating`
-- `created_at`
-- `updated_at`
-
-Если `q` передан, фоновой job использует инфраструктурный Meilisearch-адаптер. Если `q` пустой, используется database fallback.
+Если `q` передан, поиск идет через инфраструктурный Meilisearch-адаптер. Если `q` пустой, используется database fallback.
 
 ## Архитектура
 
@@ -108,7 +108,6 @@ GET /api/product-searches/{id}
 - domain page result: [src/Domain/Product/ProductPage.php](src/Domain/Product/ProductPage.php)
 - query: [src/Application/Queries/SearchProductsQuery.php](src/Application/Queries/SearchProductsQuery.php)
 - handler: [src/Application/Handlers/SearchProductsHandler.php](src/Application/Handlers/SearchProductsHandler.php)
-- queued search job: [app/Jobs/RunProductSearchJob.php](app/Jobs/RunProductSearchJob.php)
 - порт поиска: [src/Application/Contracts/Search/ProductSearch.php](src/Application/Contracts/Search/ProductSearch.php)
 - порт индексирования: [src/Application/Contracts/Search/ProductSearchIndexer.php](src/Application/Contracts/Search/ProductSearchIndexer.php)
 - контракт репозитория: [src/Application/Contracts/Repositories/ProductRepositoryInterface.php](src/Application/Contracts/Repositories/ProductRepositoryInterface.php)
@@ -123,7 +122,6 @@ GET /api/product-searches/{id}
 
 - порт: [src/Application/Contracts/Queue/QueueBus.php](src/Application/Contracts/Queue/QueueBus.php)
 - реализация: [src/Infrastructure/Queue/LaravelQueueBus.php](src/Infrastructure/Queue/LaravelQueueBus.php)
-- queued search API controllers: [app/Http/Controllers/ProductSearchStoreController.php](app/Http/Controllers/ProductSearchStoreController.php), [app/Http/Controllers/ProductSearchShowController.php](app/Http/Controllers/ProductSearchShowController.php)
 - queued indexing jobs: [app/Jobs/IndexProductInSearchJob.php](app/Jobs/IndexProductInSearchJob.php), [app/Jobs/RemoveProductFromSearchJob.php](app/Jobs/RemoveProductFromSearchJob.php), [app/Jobs/SyncProductSearchSettingsJob.php](app/Jobs/SyncProductSearchSettingsJob.php), [app/Jobs/ImportProductsToSearchJob.php](app/Jobs/ImportProductsToSearchJob.php)
 
 Границы слоев:
@@ -138,7 +136,7 @@ DI-привязки разнесены по провайдерам:
 - [app/Providers/RepositoryServiceProvider.php](app/Providers/RepositoryServiceProvider.php) — репозитории
 - [app/Providers/PortServiceProvider.php](app/Providers/PortServiceProvider.php) — порты и инфраструктурные адаптеры
 
-HTTP boundary не выполняет поиск синхронно: он валидирует входные параметры, сохраняет `product_search_requests`, ставит job в очередь и отдаёт клиенту идентификатор для polling.
+Контроллер не содержит поисковую бизнес-логику: он валидирует HTTP query params, маппит их в `ProductSearchCriteria`, вызывает `SearchProductsHandler` и сериализует `ProductPage` обратно в JSON.
 
 ## Запуск
 
