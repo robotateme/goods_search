@@ -1,0 +1,58 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Http\Responses;
+
+use Domain\Product\ProductPage;
+
+final readonly class ProductPageResponseData
+{
+    /**
+     * @param  list<ProductResponseData>  $data
+     */
+    public function __construct(
+        public int $current_page,
+        public array $data,
+        public ?int $from,
+        public int $last_page,
+        public string $path,
+        public int $per_page,
+        public ?int $to,
+        public int $total,
+    ) {
+    }
+
+    public static function fromPage(ProductPage $page, string $path): self
+    {
+        return new self(
+            current_page: $page->currentPage,
+            data: array_map(
+                fn ($product) => ProductResponseData::fromProduct($product),
+                $page->items,
+            ),
+            from: $page->from(),
+            last_page: $page->lastPage(),
+            path: $path,
+            per_page: $page->perPage,
+            to: $page->to(),
+            total: $page->total,
+        );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'current_page' => $this->current_page,
+            'data' => array_map(
+                static fn (ProductResponseData $product) => $product->toArray(),
+                $this->data,
+            ),
+            'from' => $this->from,
+            'last_page' => $this->last_page,
+            'path' => $this->path,
+            'per_page' => $this->per_page,
+            'to' => $this->to,
+            'total' => $this->total,
+        ];
+    }
+}

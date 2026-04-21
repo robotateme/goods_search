@@ -107,7 +107,9 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 - domain sort enum: [src/Domain/Product/ProductSort.php](src/Domain/Product/ProductSort.php)
 - domain page result: [src/Domain/Product/ProductPage.php](src/Domain/Product/ProductPage.php)
 - query: [src/Application/Queries/SearchProductsQuery.php](src/Application/Queries/SearchProductsQuery.php)
+- query factory: [src/Application/Queries/SearchProductsQueryFactory.php](src/Application/Queries/SearchProductsQueryFactory.php)
 - handler: [src/Application/Handlers/SearchProductsHandler.php](src/Application/Handlers/SearchProductsHandler.php)
+- response DTOs: [app/Http/Responses/ProductResponseData.php](app/Http/Responses/ProductResponseData.php), [app/Http/Responses/ProductPageResponseData.php](app/Http/Responses/ProductPageResponseData.php)
 - порт поиска: [src/Application/Contracts/Search/ProductSearch.php](src/Application/Contracts/Search/ProductSearch.php)
 - порт индексирования: [src/Application/Contracts/Search/ProductSearchIndexer.php](src/Application/Contracts/Search/ProductSearchIndexer.php)
 - контракт репозитория: [src/Application/Contracts/Repositories/ProductRepositoryInterface.php](src/Application/Contracts/Repositories/ProductRepositoryInterface.php)
@@ -133,12 +135,31 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 - `src/Application` содержит query/handler и порты
 - `src/Infrastructure` содержит Eloquent, Redis и Meilisearch адаптеры
 
+Роль `Domain` в этом проекте:
+
+- `Domain` изолирует бизнес-типы поиска от Laravel, Eloquent и Meilisearch
+- `Domain` задаёт стабильный контракт между слоями через `Product`, `ProductSearchCriteria`, `ProductSort` и `ProductPage`
+- `Application` работает с доменными типами и не зависит от деталей HTTP, SQL и внешнего search backend
+- `Infrastructure` адаптирует базу данных и Meilisearch к этим типам, не протаскивая framework-specific детали вверх
+
+При этом домен здесь намеренно тонкий:
+
+- это не rich domain model и не полноценный DDD-модуль
+- в `Domain` почти нет сложных бизнес-правил, он в первую очередь фиксирует предметные типы и инварианты поискового сценария
+- для объёма этого задания такой уровень изоляции достаточен и помогает держать границы слоёв явными
+
 DI-привязки разнесены по провайдерам:
 - [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php) — bootstrapping observer
 - [app/Providers/RepositoryServiceProvider.php](app/Providers/RepositoryServiceProvider.php) — репозитории
 - [app/Providers/PortServiceProvider.php](app/Providers/PortServiceProvider.php) — порты и инфраструктурные адаптеры
 
-Контроллер не содержит поисковую бизнес-логику: он валидирует HTTP query params, маппит их в `ProductSearchCriteria`, вызывает `SearchProductsHandler` и сериализует `ProductPage` обратно в JSON.
+Контроллер не содержит поисковую бизнес-логику: он получает уже провалидированные HTTP query params из form request, передаёт их в `SearchProductsQueryFactory`, вызывает `SearchProductsHandler` и отдаёт ответ через отдельные HTTP response DTO.
+
+Почему response DTO лежат в `app/Http`, а не в `Application`:
+
+- они описывают внешний JSON-контракт HTTP API, а не application-level результат use case
+- они знают о presentation-деталях, например о snake_case полях и структуре ответа для `response()->json(...)`
+- `Application` не должен зависеть от конкретного transport-формата, чтобы тот же use case можно было переиспользовать вне HTTP boundary
 
 Для database fallback логика фильтрации и сортировки вынесена из репозитория в отдельный `ProductSearchQueryAdapter`, а преобразование Eloquent-модели в доменный объект вынесено в `ProductModelMapper`. За счёт этого `ProductRepository` не содержит “жирный” search-метод и остаётся focused на операциях чтения, нужных для индексатора и восстановления документов по id.
 
