@@ -111,6 +111,8 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 - порт поиска: [src/Application/Contracts/Search/ProductSearch.php](src/Application/Contracts/Search/ProductSearch.php)
 - порт индексирования: [src/Application/Contracts/Search/ProductSearchIndexer.php](src/Application/Contracts/Search/ProductSearchIndexer.php)
 - контракт репозитория: [src/Application/Contracts/Repositories/ProductRepositoryInterface.php](src/Application/Contracts/Repositories/ProductRepositoryInterface.php)
+- database query adapter: [src/Infrastructure/Persistence/ProductSearchQueryAdapter.php](src/Infrastructure/Persistence/ProductSearchQueryAdapter.php)
+- model mapper: [src/Infrastructure/Persistence/ProductModelMapper.php](src/Infrastructure/Persistence/ProductModelMapper.php)
 - Eloquent-репозиторий: [src/Infrastructure/Persistence/ProductRepository.php](src/Infrastructure/Persistence/ProductRepository.php)
 - Meilisearch search adapter: [src/Infrastructure/Search/MeilisearchProductSearch.php](src/Infrastructure/Search/MeilisearchProductSearch.php)
 - Meilisearch indexer: [src/Infrastructure/Search/MeilisearchProductSearchIndexer.php](src/Infrastructure/Search/MeilisearchProductSearchIndexer.php)
@@ -137,6 +139,8 @@ DI-привязки разнесены по провайдерам:
 - [app/Providers/PortServiceProvider.php](app/Providers/PortServiceProvider.php) — порты и инфраструктурные адаптеры
 
 Контроллер не содержит поисковую бизнес-логику: он валидирует HTTP query params, маппит их в `ProductSearchCriteria`, вызывает `SearchProductsHandler` и сериализует `ProductPage` обратно в JSON.
+
+Для database fallback логика фильтрации и сортировки вынесена из репозитория в отдельный `ProductSearchQueryAdapter`, а преобразование Eloquent-модели в доменный объект вынесено в `ProductModelMapper`. За счёт этого `ProductRepository` не содержит “жирный” search-метод и остаётся focused на операциях чтения, нужных для индексатора и восстановления документов по id.
 
 ## Запуск
 

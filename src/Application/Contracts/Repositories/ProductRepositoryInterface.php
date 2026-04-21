@@ -5,13 +5,9 @@ namespace Application\Contracts\Repositories;
 
 use Closure;
 use Domain\Product\Product;
-use Domain\Product\ProductPage;
-use Domain\Product\ProductSearchCriteria;
 
 interface ProductRepositoryInterface
 {
-    public function search(ProductSearchCriteria $criteria): ProductPage;
-
     public function findById(int $productId): ?Product;
 
     /**
