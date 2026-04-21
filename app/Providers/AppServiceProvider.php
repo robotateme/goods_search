@@ -2,17 +2,17 @@
 
 namespace App\Providers;
 
+use Application\Contracts\Queue\QueueBus;
 use Application\Contracts\Search\ProductSearch;
 use Application\Contracts\Search\ProductSearchIndexer;
 use App\Models\Product;
 use Illuminate\Support\ServiceProvider;
+use Infrastructure\Queue\LaravelQueueBus;
 use Infrastructure\Search\DatabaseProductSearch;
 use Infrastructure\Search\DatabaseProductSearchIndexer;
-use Infrastructure\Queue\LaravelQueueBus;
 use Infrastructure\Search\MeilisearchProductSearch;
 use Infrastructure\Search\MeilisearchProductSearchIndexer;
 use Infrastructure\Search\ProductObserver;
-use Application\Contracts\Queue\QueueBus;
 use Meilisearch\Client;
 
 class AppServiceProvider extends ServiceProvider

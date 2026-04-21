@@ -62,6 +62,8 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 
 Поиск и индексирование вынесены из контроллера и модели в отдельные слои:
 
+- query: [src/Application/Queries/SearchProductsQuery.php](src/Application/Queries/SearchProductsQuery.php)
+- handler: [src/Application/Handlers/SearchProductsHandler.php](src/Application/Handlers/SearchProductsHandler.php)
 - порт поиска: [src/Application/Contracts/Search/ProductSearch.php](src/Application/Contracts/Search/ProductSearch.php)
 - порт индексирования: [src/Application/Contracts/Search/ProductSearchIndexer.php](src/Application/Contracts/Search/ProductSearchIndexer.php)
 - Meilisearch search adapter: [src/Infrastructure/Search/MeilisearchProductSearch.php](src/Infrastructure/Search/MeilisearchProductSearch.php)
@@ -75,15 +77,17 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 - порт: [src/Application/Contracts/Queue/QueueBus.php](src/Application/Contracts/Queue/QueueBus.php)
 - реализация: [src/Infrastructure/Queue/LaravelQueueBus.php](src/Infrastructure/Queue/LaravelQueueBus.php)
 
-Laravel-specific классы тоже вынесены в `src/`:
+Laravel boundary остается в `app/`:
 
-- контроллер: [src/Http/Controllers/ProductIndexController.php](src/Http/Controllers/ProductIndexController.php)
-- модели: [src/Models](src/Models)
-- service provider: [src/Providers/AppServiceProvider.php](src/Providers/AppServiceProvider.php)
+- контроллер: [app/Http/Controllers/ProductIndexController.php](app/Http/Controllers/ProductIndexController.php)
+- модели: [app/Models](app/Models)
+- service provider: [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php)
 
-DI-привязки находятся в [src/Providers/AppServiceProvider.php](src/Providers/AppServiceProvider.php).
+DI-привязки находятся в [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php).
 
-Каталог `app/` больше не используется как место для проектного кода. Laravel `app_path()` перенастроен на `src/` в [bootstrap/app.php](bootstrap/app.php).
+Прикладные и инфраструктурные порты/адаптеры остаются в `src/`.
+
+Контроллер не содержит поисковую бизнес-логику: он валидирует HTTP query params и передает выполнение в `SearchProductsHandler`.
 
 ## Запуск
 

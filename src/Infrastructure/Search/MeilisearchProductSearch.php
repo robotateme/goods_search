@@ -3,7 +3,6 @@
 namespace Infrastructure\Search;
 
 use Application\Contracts\Search\ProductSearch;
-use App\Models\Product;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Meilisearch\Client;
 
@@ -11,11 +10,16 @@ class MeilisearchProductSearch implements ProductSearch
 {
     public function __construct(
         private readonly Client $client,
+        private readonly DatabaseProductSearch $databaseProductSearch,
     ) {
     }
 
     public function search(array $filters, int $perPage, int $page): LengthAwarePaginator
     {
+        if (blank($filters['q'] ?? null)) {
+            return $this->databaseProductSearch->search($filters, $perPage, $page);
+        }
+
         $results = $this->client
             ->index((string) config('search.products.index'))
             ->rawSearch($filters['q'] ?? '', array_filter([
@@ -28,11 +32,11 @@ class MeilisearchProductSearch implements ProductSearch
         $ids = collect($results['hits'] ?? [])->pluck('id')->map(fn (mixed $id) => (int) $id)->all();
         $positions = array_flip($ids);
 
-        $products = Product::query()
+        $products = \App\Models\Product::query()
             ->with('category')
             ->whereIn('id', $ids)
             ->get()
-            ->sortBy(fn (Product $product) => $positions[$product->getKey()] ?? PHP_INT_MAX)
+            ->sortBy(fn (\App\Models\Product $product) => $positions[$product->getKey()] ?? PHP_INT_MAX)
             ->values();
 
         return new LengthAwarePaginator(
