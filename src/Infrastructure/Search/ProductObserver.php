@@ -4,24 +4,26 @@ declare(strict_types=1);
 
 namespace Infrastructure\Search;
 
-use Application\Contracts\Search\ProductSearchIndexer;
+use App\Jobs\IndexProductInSearchJob;
+use App\Jobs\RemoveProductFromSearchJob;
+use Application\Contracts\Queue\QueueBus;
 use App\Models\Product;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 
 class ProductObserver implements ShouldHandleEventsAfterCommit
 {
     public function __construct(
-        private readonly ProductSearchIndexer $indexer,
+        private readonly QueueBus $queueBus,
     ) {
     }
 
     public function saved(Product $product): void
     {
-        $this->indexer->index($product->getKey());
+        $this->queueBus->dispatch(new IndexProductInSearchJob($product->getKey()));
     }
 
     public function deleted(Product $product): void
     {
-        $this->indexer->remove($product->getKey());
+        $this->queueBus->dispatch(new RemoveProductFromSearchJob($product->getKey()));
     }
 }

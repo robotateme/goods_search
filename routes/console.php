@@ -2,25 +2,26 @@
 declare(strict_types=1);
 
 
-use Application\Contracts\Search\ProductSearchIndexer;
-use Illuminate\Console\Command;
+use Application\Contracts\Queue\QueueBus;
+use App\Jobs\ImportProductsToSearchJob;
+use App\Jobs\SyncProductSearchSettingsJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
-Artisan::command('inspire', function (Command $command): void {
-    $command->comment(Inspiring::quote());
+Artisan::command('inspire', function (): void {
+    $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('search:products:sync', function (Command $command, ProductSearchIndexer $indexer): int {
-    $indexer->syncSettings();
-    $command->info('Product search settings synchronized.');
+Artisan::command('search:products:sync', function (QueueBus $queueBus): int {
+    $queueBus->dispatch(new SyncProductSearchSettingsJob());
+    $this->info('Product search settings sync queued.');
 
-    return Command::SUCCESS;
+    return self::SUCCESS;
 })->purpose('Sync product search index settings');
 
-Artisan::command('search:products:import', function (Command $command, ProductSearchIndexer $indexer): int {
-    $indexer->importAll();
-    $command->info('Products imported into search index.');
+Artisan::command('search:products:import', function (QueueBus $queueBus): int {
+    $queueBus->dispatch(new ImportProductsToSearchJob());
+    $this->info('Products import queued.');
 
-    return Command::SUCCESS;
+    return self::SUCCESS;
 })->purpose('Import products into the search index');
