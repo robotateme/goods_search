@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Search;
 
-use Domain\Product\Product;
+use Domain\Product\Entity\Product;
 
 final class ProductSearchDocumentMapper
 {
@@ -22,10 +22,10 @@ final class ProductSearchDocumentMapper
     public function map(Product $product): array
     {
         return [
-            'id' => $product->id,
+            'id' => $product->id->value(),
             'name' => $product->name,
             'price' => (float) $product->price->value(),
-            'category_id' => $product->categoryId,
+            'category_id' => $product->categoryId->value(),
             'in_stock' => $product->inStock,
             'rating' => $product->rating->value(),
             'created_at_timestamp' => $product->createdAt?->getTimestamp(),

@@ -5,10 +5,10 @@ namespace Infrastructure\Search;
 
 use Application\Contracts\Repositories\ProductRepositoryInterface;
 use Application\Contracts\Search\ProductSearch;
-use Domain\Product\Product;
-use Domain\Product\ProductPage;
-use Domain\Product\ProductSearchCriteria;
-use Domain\Product\ProductSort;
+use Domain\Product\Entity\Product;
+use Domain\Product\Search\ProductPage;
+use Domain\Product\Search\ProductSearchCriteria;
+use Domain\Product\Search\ProductSort;
 use Meilisearch\Client;
 
 final readonly class MeilisearchProductSearch implements ProductSearch
@@ -55,7 +55,7 @@ final readonly class MeilisearchProductSearch implements ProductSearch
 
         usort(
             $products,
-            fn (Product $left, Product $right): int => ($positions[$left->id] ?? PHP_INT_MAX) <=> ($positions[$right->id] ?? PHP_INT_MAX),
+            fn (Product $left, Product $right): int => ($positions[$left->id->value()] ?? PHP_INT_MAX) <=> ($positions[$right->id->value()] ?? PHP_INT_MAX),
         );
 
         return $products;
@@ -72,8 +72,8 @@ final readonly class MeilisearchProductSearch implements ProductSearch
             ->rawSearch($criteria->query ?? '', array_filter([
                 'filter' => $this->buildFilterExpression($criteria),
                 'sort' => $this->buildSort($criteria->sort),
-                'hitsPerPage' => $criteria->perPage,
-                'page' => $criteria->page,
+                'hitsPerPage' => $criteria->perPage->value(),
+                'page' => $criteria->page->value(),
             ]));
 
         $ids = $this->extractIds($results);
@@ -100,7 +100,7 @@ final readonly class MeilisearchProductSearch implements ProductSearch
         }
 
         if ($criteria->categoryId !== null) {
-            $expressions[] = 'category_id = '.$criteria->categoryId;
+            $expressions[] = 'category_id = '.$criteria->categoryId->value();
         }
 
         if ($criteria->inStock !== null) {

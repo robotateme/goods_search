@@ -5,8 +5,10 @@ namespace Infrastructure\Search;
 
 use Application\Contracts\Search\ProductSearch;
 use App\Models\Product as ProductModel;
-use Domain\Product\ProductPage;
-use Domain\Product\ProductSearchCriteria;
+use Domain\Product\Search\ProductPage;
+use Domain\Product\Search\ProductSearchCriteria;
+use Domain\Product\ValueObject\Page;
+use Domain\Product\ValueObject\PerPage;
 use Infrastructure\Persistence\ProductModelMapper;
 use Infrastructure\Persistence\ProductSearchQueryAdapter;
 
@@ -22,7 +24,7 @@ final readonly class DatabaseProductSearch implements ProductSearch
     {
         $paginator = $this->queryAdapter
             ->build($criteria)
-            ->paginate($criteria->perPage, ['*'], 'page', $criteria->page);
+            ->paginate($criteria->perPage->value(), ['*'], 'page', $criteria->page->value());
         $items = [];
 
         foreach ($paginator->getCollection() as $product) {
@@ -34,8 +36,8 @@ final readonly class DatabaseProductSearch implements ProductSearch
         return new ProductPage(
             $items,
             $paginator->total(),
-            $paginator->perPage(),
-            $paginator->currentPage(),
+            new PerPage($paginator->perPage()),
+            new Page($paginator->currentPage()),
         );
     }
 }

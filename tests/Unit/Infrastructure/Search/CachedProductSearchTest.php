@@ -4,12 +4,16 @@ declare(strict_types=1);
 namespace Tests\Unit\Infrastructure\Search;
 
 use Application\Contracts\Search\ProductSearch;
-use Domain\Product\Price;
-use Domain\Product\Product;
-use Domain\Product\ProductPage;
-use Domain\Product\ProductSearchCriteria;
-use Domain\Product\ProductSort;
-use Domain\Product\Rating;
+use Domain\Product\Entity\Product;
+use Domain\Product\Search\ProductPage;
+use Domain\Product\Search\ProductSearchCriteria;
+use Domain\Product\Search\ProductSort;
+use Domain\Product\ValueObject\CategoryId;
+use Domain\Product\ValueObject\Page;
+use Domain\Product\ValueObject\PerPage;
+use Domain\Product\ValueObject\Price;
+use Domain\Product\ValueObject\ProductId;
+use Domain\Product\ValueObject\Rating;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Config\Repository as ConfigRepository;
 use Infrastructure\Search\CachedProductSearch;
@@ -36,10 +40,10 @@ class CachedProductSearchTest extends TestCase
                 return new ProductPage(
                     items: [
                         new Product(
-                            id: 1,
+                            id: new ProductId(1),
                             name: 'Cached Mouse',
                             price: new Price('149.99'),
-                            categoryId: 2,
+                            categoryId: new CategoryId(2),
                             inStock: true,
                             rating: new Rating(4.8),
                             createdAt: null,
@@ -54,7 +58,7 @@ class CachedProductSearchTest extends TestCase
         };
 
         $cachedSearch = $this->makeCachedSearch($inner);
-        $criteria = new ProductSearchCriteria(
+        $criteria = ProductSearchCriteria::fromInput(
             query: 'mouse',
             priceFrom: null,
             priceTo: null,
@@ -100,7 +104,7 @@ class CachedProductSearchTest extends TestCase
 
         $versionManager = $this->app->make(ProductSearchCacheVersionManager::class);
         $cachedSearch = $this->makeCachedSearch($inner, $versionManager);
-        $criteria = new ProductSearchCriteria(
+        $criteria = ProductSearchCriteria::fromInput(
             query: null,
             priceFrom: null,
             priceTo: null,

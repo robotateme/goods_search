@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Domain\Product;
+namespace Domain\Product\Search;
 
 enum ProductSort: string
 {

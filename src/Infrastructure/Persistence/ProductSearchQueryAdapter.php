@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Infrastructure\Persistence;
 
 use App\Models\Product as ProductModel;
-use Domain\Product\ProductSearchCriteria;
-use Domain\Product\ProductSort;
+use Domain\Product\Search\ProductSearchCriteria;
+use Domain\Product\Search\ProductSort;
 use Illuminate\Database\Eloquent\Builder;
 
 final class ProductSearchQueryAdapter
@@ -19,9 +19,12 @@ final class ProductSearchQueryAdapter
             ->with('category')
             ->when($criteria->priceFrom !== null, fn (Builder $builder) => $builder->where('price', '>=', $criteria->priceFrom))
             ->when($criteria->priceTo !== null, fn (Builder $builder) => $builder->where('price', '<=', $criteria->priceTo))
-            ->when($criteria->categoryId !== null, fn (Builder $builder) => $builder->where('category_id', $criteria->categoryId))
             ->when($criteria->inStock !== null, fn (Builder $builder) => $builder->where('in_stock', $criteria->inStock))
             ->when($criteria->ratingFrom !== null, fn (Builder $builder) => $builder->where('rating', '>=', $criteria->ratingFrom));
+
+        if ($criteria->categoryId !== null) {
+            $query->where('category_id', $criteria->categoryId->value());
+        }
 
         if ($criteria->hasQuery()) {
             $query->where('name', 'like', '%'.$criteria->query.'%');

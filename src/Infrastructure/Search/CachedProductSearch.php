@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Infrastructure\Search;
 
 use Application\Contracts\Search\ProductSearch;
-use Domain\Product\ProductPage;
-use Domain\Product\ProductSearchCriteria;
+use Domain\Product\Search\ProductPage;
+use Domain\Product\Search\ProductSearchCriteria;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 
@@ -46,12 +46,12 @@ final readonly class CachedProductSearch implements ProductSearch
             'query' => $criteria->query,
             'price_from' => $criteria->priceFrom,
             'price_to' => $criteria->priceTo,
-            'category_id' => $criteria->categoryId,
+            'category_id' => $criteria->categoryId?->value(),
             'in_stock' => $criteria->inStock,
             'rating_from' => $criteria->ratingFrom,
             'sort' => $criteria->sort->value,
-            'per_page' => $criteria->perPage,
-            'page' => $criteria->page,
+            'per_page' => $criteria->perPage->value(),
+            'page' => $criteria->page->value(),
         ];
 
         return sprintf(

@@ -5,7 +5,7 @@ namespace Application\Handlers;
 
 use Application\Contracts\Search\ProductSearch;
 use Application\Queries\SearchProductsQuery;
-use Domain\Product\ProductPage;
+use Domain\Product\Search\ProductPage;
 
 final readonly class SearchProductsHandler
 {

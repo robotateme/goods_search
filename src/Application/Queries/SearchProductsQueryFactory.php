@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Application\Queries;
 
-use Domain\Product\ProductSearchCriteria;
-use Domain\Product\ProductSort;
+use Domain\Product\Search\ProductSearchCriteria;
+use Domain\Product\Search\ProductSort;
 
 final class SearchProductsQueryFactory
 {
@@ -17,7 +17,7 @@ final class SearchProductsQueryFactory
         $perPage = isset($filters['per_page']) ? (int) $filters['per_page'] : 15;
 
         return new SearchProductsQuery(
-            new ProductSearchCriteria(
+            ProductSearchCriteria::fromInput(
                 query: $filters['q'] ?? null,
                 priceFrom: isset($filters['price_from']) ? (float) $filters['price_from'] : null,
                 priceTo: isset($filters['price_to']) ? (float) $filters['price_to'] : null,

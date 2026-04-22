@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Http\Responses;
 
-use Domain\Product\Product;
+use Domain\Product\Entity\Product;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -35,10 +35,10 @@ final readonly class ProductResponseData
     public static function fromProduct(Product $product): self
     {
         return new self(
-            id: $product->id,
+            id: $product->id->value(),
             name: $product->name,
             price: $product->price->value(),
-            category_id: $product->categoryId,
+            category_id: $product->categoryId->value(),
             in_stock: $product->inStock,
             rating: $product->rating->value(),
             created_at: $product->createdAt?->format(DATE_ATOM),

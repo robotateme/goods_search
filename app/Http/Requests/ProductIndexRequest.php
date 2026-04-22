@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use Domain\Product\ProductSort;
+use Domain\Product\Search\ProductSort;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;

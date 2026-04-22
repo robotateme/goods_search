@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Application\Contracts\Repositories;
 
 use Closure;
-use Domain\Product\Product;
+use Domain\Product\Entity\Product;
 
 interface ProductRepositoryInterface
 {

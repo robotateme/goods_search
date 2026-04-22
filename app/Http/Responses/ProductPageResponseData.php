@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Http\Responses;
 
-use Domain\Product\ProductPage;
+use Domain\Product\Search\ProductPage;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -39,7 +39,7 @@ final readonly class ProductPageResponseData
     public static function fromPage(ProductPage $page, string $path): self
     {
         return new self(
-            current_page: $page->currentPage,
+            current_page: $page->currentPage->value(),
             data: array_map(
                 fn ($product) => ProductResponseData::fromProduct($product),
                 $page->items,
@@ -47,7 +47,7 @@ final readonly class ProductPageResponseData
             from: $page->from(),
             last_page: $page->lastPage(),
             path: $path,
-            per_page: $page->perPage,
+            per_page: $page->perPage->value(),
             to: $page->to(),
             total: $page->total,
         );

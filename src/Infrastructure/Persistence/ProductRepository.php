@@ -6,7 +6,7 @@ namespace Infrastructure\Persistence;
 use Application\Contracts\Repositories\ProductRepositoryInterface;
 use App\Models\Product as ProductModel;
 use Closure;
-use Domain\Product\Product;
+use Domain\Product\Entity\Product;
 
 final readonly class ProductRepository implements ProductRepositoryInterface
 {

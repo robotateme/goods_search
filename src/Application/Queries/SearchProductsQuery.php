@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Application\Queries;
 
-use Domain\Product\ProductSearchCriteria;
+use Domain\Product\Search\ProductSearchCriteria;
 
 final readonly class SearchProductsQuery
 {

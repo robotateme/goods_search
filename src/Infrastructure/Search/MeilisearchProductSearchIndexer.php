@@ -5,7 +5,7 @@ namespace Infrastructure\Search;
 
 use Application\Contracts\Repositories\ProductRepositoryInterface;
 use Application\Contracts\Search\ProductSearchIndexer;
-use Domain\Product\Product;
+use Domain\Product\Entity\Product;
 use Meilisearch\Client;
 
 final readonly class MeilisearchProductSearchIndexer implements ProductSearchIndexer
