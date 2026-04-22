@@ -14,6 +14,7 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
         private readonly Client $client,
         private readonly ProductSearchDocumentMapper $mapper,
         private readonly ProductRepositoryInterface $products,
+        private readonly ProductSearchCacheVersionManager $cacheVersionManager,
     ) {
     }
 
@@ -25,6 +26,7 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
                 'filterableAttributes' => config('search.products.filterable_attributes', []),
                 'sortableAttributes' => config('search.products.sortable_attributes', []),
             ]);
+        $this->cacheVersionManager->bump();
     }
 
     public function importAll(): void
@@ -56,6 +58,7 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
         $this->client
             ->index((string) config('search.products.index'))
             ->addDocuments([$this->mapper->map($product)], 'id');
+        $this->cacheVersionManager->bump();
     }
 
     public function remove(int $productId): void
@@ -63,5 +66,6 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
         $this->client
             ->index((string) config('search.products.index'))
             ->deleteDocument((string) $productId);
+        $this->cacheVersionManager->bump();
     }
 }
