@@ -17,6 +17,7 @@ use Domain\Product\ValueObject\Rating;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Config\Repository as ConfigRepository;
 use Infrastructure\Search\CachedProductSearch;
+use Infrastructure\Search\ProductPageCacheSerializer;
 use Infrastructure\Search\ProductSearchCacheVersionManager;
 use Tests\TestCase;
 
@@ -137,6 +138,55 @@ class CachedProductSearchTest extends TestCase
             $inner,
             $this->app->make(CacheManager::class),
             $versionManager ?? $this->app->make(ProductSearchCacheVersionManager::class),
+            $this->app->make(ProductPageCacheSerializer::class),
         );
+    }
+
+    public function test_it_restores_cached_page_from_serialized_payload(): void
+    {
+        $criteria = ProductSearchCriteria::fromInput(
+            query: 'mouse',
+            priceFrom: null,
+            priceTo: null,
+            categoryId: null,
+            inStock: true,
+            ratingFrom: 4.5,
+            sort: ProductSort::Newest,
+            perPage: 15,
+            page: 1,
+        );
+
+        $page = new ProductPage(
+            items: [
+                new Product(
+                    id: new ProductId(10),
+                    name: 'Serialized Mouse',
+                    price: new Price('99.99'),
+                    categoryId: new CategoryId(3),
+                    inStock: true,
+                    rating: new Rating(4.7),
+                    createdAt: new \DateTimeImmutable('2026-04-22T10:00:00+00:00'),
+                    updatedAt: new \DateTimeImmutable('2026-04-22T10:05:00+00:00'),
+                ),
+            ],
+            total: 1,
+            perPage: $criteria->perPage,
+            currentPage: $criteria->page,
+        );
+
+        $serializer = $this->app->make(ProductPageCacheSerializer::class);
+        $payload = unserialize(serialize($serializer->serialize($page)));
+
+        self::assertIsArray($payload);
+
+        $restored = $serializer->deserialize($payload);
+
+        self::assertSame($page->total, $restored->total);
+        self::assertSame($page->perPage->value(), $restored->perPage->value());
+        self::assertSame($page->currentPage->value(), $restored->currentPage->value());
+        self::assertSame($page->items[0]->id->value(), $restored->items[0]->id->value());
+        self::assertSame($page->items[0]->name, $restored->items[0]->name);
+        self::assertSame($page->items[0]->price->value(), $restored->items[0]->price->value());
+        self::assertSame($page->items[0]->createdAt?->format(DATE_ATOM), $restored->items[0]->createdAt?->format(DATE_ATOM));
     }
 }

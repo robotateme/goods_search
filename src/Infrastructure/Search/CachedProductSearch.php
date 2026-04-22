@@ -15,6 +15,7 @@ final readonly class CachedProductSearch implements ProductSearch
         private ProductSearch $inner,
         private CacheFactory $cacheFactory,
         private ProductSearchCacheVersionManager $versionManager,
+        private ProductPageCacheSerializer $serializer,
     ) {
     }
 
@@ -24,11 +25,21 @@ final readonly class CachedProductSearch implements ProductSearch
             return $this->inner->search($criteria);
         }
 
-        /** @var ProductPage $page */
-        $page = $this->cache()->remember(
+        $cached = $this->cache()->get($this->key($criteria));
+
+        if ($cached instanceof ProductPage) {
+            return $cached;
+        }
+
+        if (is_array($cached)) {
+            return $this->serializer->deserialize($cached);
+        }
+
+        $page = $this->inner->search($criteria);
+        $this->cache()->put(
             $this->key($criteria),
+            $this->serializer->serialize($page),
             (int) config('search.cache.ttl_seconds', 300),
-            fn (): ProductPage => $this->inner->search($criteria),
         );
 
         return $page;

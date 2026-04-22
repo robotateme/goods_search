@@ -32,6 +32,21 @@ class ProductIndexTest extends TestCase
             ->assertJsonCount(5, 'data');
     }
 
+    public function test_repeated_requests_work_with_search_cache_enabled(): void
+    {
+        config()->set('search.cache.enabled', true);
+        config()->set('search.cache.store', 'array');
+
+        Product::factory()->count(8)->create();
+
+        $first = $this->getJson('/api/products?per_page=5&page=1');
+        $second = $this->getJson('/api/products?per_page=5&page=1');
+
+        $first->assertOk()->assertJsonCount(5, 'data');
+        $second->assertOk()->assertJsonCount(5, 'data');
+        self::assertSame($first->json('data.0.id'), $second->json('data.0.id'));
+    }
+
     // Проверяет совместную работу всех поддержанных фильтров поиска.
     public function test_it_filters_by_all_supported_filters(): void
     {

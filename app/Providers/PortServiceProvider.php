@@ -47,6 +47,7 @@ class PortServiceProvider extends ServiceProvider
                 $baseSearch,
                 $this->app->make(CacheFactory::class),
                 $this->app->make(ProductSearchCacheVersionManager::class),
+                $this->app->make(\Infrastructure\Search\ProductPageCacheSerializer::class),
             );
         });
         $this->app->bind(ProductSearchIndexer::class, function () {
