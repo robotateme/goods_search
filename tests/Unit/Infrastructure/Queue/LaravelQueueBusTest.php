@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Infrastructure\Queue;
 
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Support\Collection;
 use Infrastructure\Queue\LaravelQueueBus;
 use PHPUnit\Framework\TestCase;
 
@@ -65,7 +66,7 @@ final class InMemoryDispatcher implements Dispatcher
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int, mixed>|array<int, mixed>|null  $jobs
+     * @param  Collection<int, mixed>|array<int, mixed>|null  $jobs
      */
     public function chain($jobs = null)
     {

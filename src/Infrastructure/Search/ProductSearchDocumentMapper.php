@@ -5,7 +5,7 @@ namespace Infrastructure\Search;
 
 use Domain\Product\Product;
 
-final readonly class ProductSearchDocumentMapper
+final class ProductSearchDocumentMapper
 {
     /**
      * @return array{

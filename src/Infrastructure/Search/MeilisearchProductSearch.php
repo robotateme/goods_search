@@ -44,6 +44,23 @@ final readonly class MeilisearchProductSearch implements ProductSearch
         return $ids;
     }
 
+    /**
+     * @param  list<Product>  $products
+     * @param  list<int>  $ids
+     * @return list<Product>
+     */
+    private function sortBySearchOrder(array $products, array $ids): array
+    {
+        $positions = array_flip($ids);
+
+        usort(
+            $products,
+            fn (Product $left, Product $right): int => ($positions[$left->id] ?? PHP_INT_MAX) <=> ($positions[$right->id] ?? PHP_INT_MAX),
+        );
+
+        return $products;
+    }
+
     public function search(ProductSearchCriteria $criteria): ProductPage
     {
         if (! $criteria->hasQuery()) {
@@ -60,10 +77,7 @@ final readonly class MeilisearchProductSearch implements ProductSearch
             ]));
 
         $ids = $this->extractIds($results);
-        $positions = array_flip($ids);
-        $products = $this->products->getByIds($ids);
-
-        usort($products, fn (Product $left, Product $right): int => ($positions[$left->id] ?? PHP_INT_MAX) <=> ($positions[$right->id] ?? PHP_INT_MAX));
+        $products = $this->sortBySearchOrder($this->products->getByIds($ids), $ids);
 
         return new ProductPage(
             $products,

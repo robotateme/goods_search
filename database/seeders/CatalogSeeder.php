@@ -12,6 +12,28 @@ class CatalogSeeder extends Seeder
 {
     use WithoutModelEvents;
 
+    private const DEFAULT_CHUNK_SIZE = 1000;
+    private const SEARCH_KEYWORDS = [
+        'Mouse',
+        'Keyboard',
+        'Monitor',
+        'Headphones',
+        'Router',
+        'Speaker',
+    ];
+    private const PRODUCT_PREFIXES = [
+        'Wireless',
+        'Smart',
+        'Ultra',
+        'Portable',
+        'Gaming',
+        'Compact',
+        'Premium',
+        'Budget',
+        'Ergonomic',
+        'Pro',
+    ];
+
     public function __construct(
         private readonly int $categoriesCount = 12,
         private readonly int $productsCount = 5000,
@@ -26,16 +48,14 @@ class CatalogSeeder extends Seeder
 
         $categoryIds = Category::query()->pluck('id')->all();
         $faker = fake();
-        $chunkSize = 1000;
         $remaining = $this->productsCount;
 
         while ($remaining > 0) {
-            $batchSize = min($chunkSize, $remaining);
+            $batchSize = min(self::DEFAULT_CHUNK_SIZE, $remaining);
             $rows = [];
+            $timestamp = now();
 
             for ($index = 0; $index < $batchSize; $index++) {
-                $timestamp = now();
-
                 $rows[] = [
                     'name' => $this->generateProductName($faker, $index, $remaining),
                     'price' => $faker->randomFloat(2, 10, 1000),
@@ -54,26 +74,8 @@ class CatalogSeeder extends Seeder
 
     private function generateProductName(\Faker\Generator $faker, int $index, int $remaining): string
     {
-        $keyword = $faker->randomElement([
-            'Mouse',
-            'Keyboard',
-            'Monitor',
-            'Headphones',
-            'Router',
-            'Speaker',
-        ]);
-        $prefix = $faker->randomElement([
-            'Wireless',
-            'Smart',
-            'Ultra',
-            'Portable',
-            'Gaming',
-            'Compact',
-            'Premium',
-            'Budget',
-            'Ergonomic',
-            'Pro',
-        ]);
+        $keyword = $faker->randomElement(self::SEARCH_KEYWORDS);
+        $prefix = $faker->randomElement(self::PRODUCT_PREFIXES);
 
         return sprintf('%s %s %d%s', $prefix, $keyword, $remaining, chr(65 + ($index % 26)));
     }

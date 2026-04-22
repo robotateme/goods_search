@@ -8,7 +8,7 @@ use Domain\Product\Price;
 use Domain\Product\Product;
 use Domain\Product\Rating;
 
-final readonly class ProductModelMapper
+final class ProductModelMapper
 {
     public function map(ProductModel $product): Product
     {

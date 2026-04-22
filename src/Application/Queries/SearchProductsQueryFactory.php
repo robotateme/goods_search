@@ -6,7 +6,7 @@ namespace Application\Queries;
 use Domain\Product\ProductSearchCriteria;
 use Domain\Product\ProductSort;
 
-final readonly class SearchProductsQueryFactory
+final class SearchProductsQueryFactory
 {
     /**
      * @param  array<string, mixed>  $filters

@@ -8,7 +8,7 @@ use Domain\Product\ProductSearchCriteria;
 use Domain\Product\ProductSort;
 use Illuminate\Database\Eloquent\Builder;
 
-final readonly class ProductSearchQueryAdapter
+final class ProductSearchQueryAdapter
 {
     /**
      * @return Builder<ProductModel>

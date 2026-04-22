@@ -28,13 +28,9 @@ final readonly class ProductRepository implements ProductRepositoryInterface
      */
     public function getByIds(array $ids): array
     {
-        $mapped = [];
-
-        foreach (ProductModel::whereIn('id', $ids)->cursor() as $product) {
-            $mapped[] = $this->mapper->map($product);
-        }
-
-        return $mapped;
+        return $this->mapProducts(
+            ProductModel::whereIn('id', $ids)->cursor(),
+        );
     }
 
     /**
@@ -56,5 +52,20 @@ final readonly class ProductRepository implements ProductRepositoryInterface
         if ($mapped !== []) {
             $callback($mapped);
         }
+    }
+
+    /**
+     * @param  iterable<ProductModel>  $products
+     * @return list<Product>
+     */
+    private function mapProducts(iterable $products): array
+    {
+        $mapped = [];
+
+        foreach ($products as $product) {
+            $mapped[] = $this->mapper->map($product);
+        }
+
+        return $mapped;
     }
 }
