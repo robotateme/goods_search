@@ -185,6 +185,66 @@ composer install
 ./vendor/bin/sail artisan migrate
 ```
 
+## Локальный деплой
+
+Вариант через Docker Compose / Sail:
+
+1. Установить зависимости:
+
+```bash
+composer install
+npm install
+```
+
+2. Поднять сервисы:
+
+```bash
+./vendor/bin/sail up -d
+```
+
+3. Сгенерировать ключ приложения:
+
+```bash
+./vendor/bin/sail artisan key:generate
+```
+
+4. Применить миграции и заполнить каталог:
+
+```bash
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan db:seed
+```
+
+5. Для режима `SEARCH_DRIVER=meilisearch` синхронизировать индекс:
+
+```bash
+./vendor/bin/sail artisan search:products:sync
+./vendor/bin/sail artisan search:products:import
+```
+
+6. Собрать фронтенд-ассеты:
+
+```bash
+npm run build
+```
+
+7. Проверить API:
+
+```bash
+curl "http://localhost/api/products?page=1&per_page=20"
+```
+
+Если нужен только backend без Docker, достаточно поднять PostgreSQL, Redis и Meilisearch локально, настроить `.env`, затем выполнить:
+
+```bash
+composer install
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+php artisan serve
+php artisan queue:work redis --queue=default
+```
+
 ## Redis Queue
 
 В `compose.yaml` добавлен отдельный сервис `queue`, который запускает worker:
@@ -271,6 +331,13 @@ k6 run loadtests/products-search.k6.js
 ```bash
 BASE_URL=http://localhost/api/products k6 run loadtests/products-search.k6.js
 ```
+
+Почему выбран `k6`:
+
+- он хорошо подходит для API-нагрузки без лишней обвязки
+- сценарий хранится в обычном js-файле и легко читается на ревью
+- из коробки даёт понятные метрики по latency, throughput и error rate
+- его удобно запускать локально и адаптировать под CI
 
 Сценарий покрывает типовые чтения:
 
