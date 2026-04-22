@@ -10,7 +10,7 @@ use Domain\Product\ProductPage;
 final readonly class SearchProductsHandler
 {
     public function __construct(
-        private readonly ProductSearch $productSearch,
+        private ProductSearch $productSearch,
     ) {
     }
 

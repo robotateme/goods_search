@@ -41,7 +41,7 @@ class RedisSlidingWindowRateLimiterTest extends TestCase
     private function config(): ConfigRepository
     {
         return new ConfigRepository([
-            'rate_limit.products.redis_connection' => 'default',
+            'rate_limit.redis_connection' => 'default',
         ]);
     }
 }

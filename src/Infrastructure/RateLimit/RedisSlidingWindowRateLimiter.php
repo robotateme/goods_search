@@ -45,7 +45,7 @@ final readonly class RedisSlidingWindowRateLimiter
     private function redis(): mixed
     {
         return $this->redisFactory->connection(
-            (string) $this->config->get('rate_limit.products.redis_connection', 'default'),
+            (string) $this->config->get('rate_limit.redis_connection', 'default'),
         );
     }
 }

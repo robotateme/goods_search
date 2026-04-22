@@ -364,6 +364,38 @@ BASE_URL=http://localhost/api/products k6 run loadtests/products-search.k6.js
 - фильтрацию по цене, наличию, рейтингу и категории
 - запросы с `q`
 
+## Benchmarks
+
+Отдельно от load test добавлен benchmark-сценарий:
+
+- [benchmarks/products-benchmark.k6.js](benchmarks/products-benchmark.k6.js)
+- [benchmarks/README.md](benchmarks/README.md)
+
+Он нужен не для общего stress/load поведения, а для контролируемого сравнения фиксированных сценариев:
+
+- обычный list endpoint без `q`
+- list endpoint с фильтрами
+- search endpoint с `q`
+
+Пример запуска:
+
+```bash
+BASE_URL=http://localhost/api/products \
+SEARCH_DRIVER=database \
+SEARCH_CACHE=off \
+k6 run benchmarks/products-benchmark.k6.js
+```
+
+Такой benchmark удобен для сравнения:
+
+- `database` против `meilisearch`
+- Redis cache выключен против включён
+- разных объёмов каталога (`10k`, `100k`, `500k`)
+
+Подробная методика и шаблон фиксации результатов описаны в:
+
+- [benchmarks/README.md](benchmarks/README.md)
+
 ## Тесты и проверка
 
 Запуск тестов:

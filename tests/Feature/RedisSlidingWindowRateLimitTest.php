@@ -10,7 +10,7 @@ use Infrastructure\RateLimit\LuaScriptResolver;
 use Infrastructure\RateLimit\RedisSlidingWindowRateLimiter;
 use Tests\TestCase;
 
-class ProductsRateLimitTest extends TestCase
+class RedisSlidingWindowRateLimitTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -19,7 +19,7 @@ class ProductsRateLimitTest extends TestCase
         $this->artisan('migrate:fresh');
     }
 
-    public function test_it_returns_429_when_products_rate_limit_is_exceeded(): void
+    public function test_it_returns_429_when_route_rate_limit_is_exceeded(): void
     {
         $this->app->instance(RedisFactory::class, new FeatureFakeRedisFactory(
             new FeatureFakeRedisConnection([0, 0, 12_000]),

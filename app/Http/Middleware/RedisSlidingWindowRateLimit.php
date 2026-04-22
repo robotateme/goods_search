@@ -8,16 +8,22 @@ use Illuminate\Http\Request;
 use Infrastructure\RateLimit\RedisSlidingWindowRateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
-final class ProductsRateLimit
+final class RedisSlidingWindowRateLimit
 {
     public function __construct(
         private readonly RedisSlidingWindowRateLimiter $rateLimiter,
     ) {
     }
 
-    public function handle(Request $request, Closure $next): Response
-    {
-        if (! (bool) config('rate_limit.products.enabled', true)) {
+    public function handle(
+        Request $request,
+        Closure $next,
+        string $prefix,
+        string $maxRequests,
+        string $windowSeconds,
+        ?string $enabledConfig = null,
+    ): Response {
+        if ($enabledConfig !== null && ! (bool) config($enabledConfig, true)) {
             /** @var Response $response */
             $response = $next($request);
 
@@ -25,9 +31,9 @@ final class ProductsRateLimit
         }
 
         $result = $this->rateLimiter->attempt(
-            $this->key($request),
-            (int) config('rate_limit.products.max_requests', 60),
-            (int) config('rate_limit.products.window_seconds', 60),
+            $this->key($request, $prefix),
+            (int) $maxRequests,
+            (int) $windowSeconds,
         );
 
         if (! $result->allowed) {
@@ -46,11 +52,11 @@ final class ProductsRateLimit
         return $response;
     }
 
-    private function key(Request $request): string
+    private function key(Request $request, string $prefix): string
     {
         return sprintf(
-            '%s:%s',
-            (string) config('rate_limit.products.prefix', 'rate-limit:products'),
+            'rate-limit:%s:%s',
+            $prefix,
             sha1(sprintf(
                 '%s|%s',
                 $request->route()->uri(),
