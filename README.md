@@ -51,6 +51,8 @@
 - `QueueBus` как порт в `Application` и реализация в `Infrastructure`
 - поиск по `q` через Meilisearch
 - индексирование, вынесенное в `Infrastructure`
+- фабрики и сиды для наполнения каталога
+- `k6`-сценарий для нагрузочного тестирования поиска
 
 ## Стек
 
@@ -221,6 +223,61 @@ MEILISEARCH_HOST=http://meilisearch:7700
 ```
 
 Эти команды теперь не индексируют синхронно, а ставят соответствующие jobs в очередь. Автоиндексация `saved/deleted` тоже идёт через очередь.
+
+## Фабрики и сиды
+
+Для генерации данных используются:
+
+- [database/factories/CategoryFactory.php](database/factories/CategoryFactory.php)
+- [database/factories/ProductFactory.php](database/factories/ProductFactory.php)
+- [database/seeders/CatalogSeeder.php](database/seeders/CatalogSeeder.php)
+
+Базовое сидирование:
+
+```bash
+php artisan db:seed
+```
+
+Быстрое наполнение каталога под нагрузочные проверки:
+
+```bash
+php artisan catalog:seed 5000 12
+php artisan catalog:seed 50000 20
+```
+
+После большого импорта товаров для режима `SEARCH_DRIVER=meilisearch` имеет смысл отдельно поставить bulk-индексацию:
+
+```bash
+php artisan search:products:sync
+php artisan search:products:import
+```
+
+Seeder отключает model events, чтобы массовое наполнение не порождало тысячи одиночных indexing jobs. Для полнотекстового индекса после сидирования используется отдельный bulk import.
+
+## Нагрузочное тестирование
+
+В репозитории есть `k6`-сценарий:
+
+- [loadtests/products-search.k6.js](loadtests/products-search.k6.js)
+
+Пример запуска:
+
+```bash
+k6 run loadtests/products-search.k6.js
+```
+
+С указанием базового URL:
+
+```bash
+BASE_URL=http://localhost/api/products k6 run loadtests/products-search.k6.js
+```
+
+Сценарий покрывает типовые чтения:
+
+- листинг без фильтров
+- сортировку
+- фильтрацию по цене, наличию, рейтингу и категории
+- запросы с `q`
 
 ## Тесты и проверка
 

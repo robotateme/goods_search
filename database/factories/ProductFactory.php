@@ -17,8 +17,33 @@ class ProductFactory extends Factory
 
     public function definition(): array
     {
+        $prefix = fake()->randomElement([
+            'Wireless',
+            'Smart',
+            'Ultra',
+            'Portable',
+            'Gaming',
+            'Compact',
+            'Premium',
+            'Budget',
+            'Ergonomic',
+            'Pro',
+        ]);
+        $productType = fake()->randomElement([
+            'Mouse',
+            'Keyboard',
+            'Monitor',
+            'Headphones',
+            'Speaker',
+            'Router',
+            'Laptop Stand',
+            'Webcam',
+            'Microphone',
+            'SSD',
+        ]);
+
         return [
-            'name' => fake()->unique()->words(mt_rand(2, 4), true),
+            'name' => fake()->unique()->bothify($prefix.' '.$productType.' ##??'),
             'price' => fake()->randomFloat(2, 10, 1000),
             'category_id' => Category::factory(),
             'in_stock' => fake()->boolean(),
