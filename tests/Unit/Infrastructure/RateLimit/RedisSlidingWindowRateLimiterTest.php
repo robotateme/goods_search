@@ -6,8 +6,8 @@ namespace Tests\Unit\Infrastructure\RateLimit;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
-use Infrastructure\RateLimit\LuaScriptResolver;
 use Infrastructure\RateLimit\RedisSlidingWindowRateLimiter;
+use Infrastructure\Support\ScriptResolver;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -28,7 +28,7 @@ class RedisSlidingWindowRateLimiterTest extends TestCase
         $connection = new FakeRedisConnection($evalResult);
         $factory = new FakeRedisFactory($connection);
 
-        $limiter = new RedisSlidingWindowRateLimiter($factory, new LuaScriptResolver(), $this->config());
+        $limiter = new RedisSlidingWindowRateLimiter($factory, new ScriptResolver(), $this->config());
         $result = $limiter->attempt('rate-limit:products:test', 60, 60, 1_000);
 
         self::assertSame($expectedAllowed, $result->allowed);

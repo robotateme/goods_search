@@ -1,16 +1,3 @@
-<?php
-declare(strict_types=1);
-
-namespace Infrastructure\RateLimit;
-
-use InvalidArgumentException;
-
-final class LuaScriptResolver
-{
-    public function resolve(string $name): string
-    {
-        return match ($name) {
-            'sliding_window_rate_limiter' => <<<'LUA'
 local key = KEYS[1]
 local now_ms = tonumber(ARGV[1])
 local window_ms = tonumber(ARGV[2])
@@ -38,8 +25,3 @@ redis.call('PEXPIRE', key, window_ms)
 local remaining = limit - (current_count + 1)
 
 return {1, remaining, 0}
-LUA,
-            default => throw new InvalidArgumentException(sprintf('Unknown Lua script: %s', $name)),
-        };
-    }
-}

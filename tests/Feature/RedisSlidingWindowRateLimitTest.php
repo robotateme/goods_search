@@ -6,8 +6,8 @@ namespace Tests\Feature;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
-use Infrastructure\RateLimit\LuaScriptResolver;
 use Infrastructure\RateLimit\RedisSlidingWindowRateLimiter;
+use Infrastructure\Support\ScriptResolver;
 use Tests\TestCase;
 
 class RedisSlidingWindowRateLimitTest extends TestCase
@@ -29,7 +29,7 @@ class RedisSlidingWindowRateLimitTest extends TestCase
             RedisSlidingWindowRateLimiter::class,
             new RedisSlidingWindowRateLimiter(
                 $this->app->make(RedisFactory::class),
-                new LuaScriptResolver(),
+                new ScriptResolver(),
                 $this->app->make(ConfigRepository::class),
             ),
         );

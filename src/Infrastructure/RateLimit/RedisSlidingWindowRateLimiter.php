@@ -5,12 +5,13 @@ namespace Infrastructure\RateLimit;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
+use Infrastructure\Support\ScriptResolver;
 
 final readonly class RedisSlidingWindowRateLimiter
 {
     public function __construct(
         private RedisFactory $redisFactory,
-        private LuaScriptResolver $luaScriptResolver,
+        private ScriptResolver $scriptResolver,
         private ConfigRepository $config,
     ) {
     }
@@ -24,7 +25,7 @@ final readonly class RedisSlidingWindowRateLimiter
         /** @var array{0:int|string,1:int|string,2:int|string} $response */
         $response = $this->redis()
             ->eval(
-                $this->luaScriptResolver->resolve('sliding_window_rate_limiter'),
+                $this->scriptResolver->resolve('rate-limit/sliding_window_rate_limiter.lua'),
                 1,
                 $key,
                 (string) $nowMs,
