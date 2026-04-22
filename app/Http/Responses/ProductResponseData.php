@@ -4,17 +4,30 @@ declare(strict_types=1);
 namespace App\Http\Responses;
 
 use Domain\Product\Product;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'ProductResponse',
+    required: ['id', 'name', 'price', 'category_id', 'in_stock', 'rating', 'created_at', 'updated_at'],
+)]
 final readonly class ProductResponseData
 {
     public function __construct(
+        #[OA\Property(example: 1)]
         public int $id,
+        #[OA\Property(example: 'Wireless Mouse Pro')]
         public string $name,
+        #[OA\Property(example: '149.99')]
         public string $price,
+        #[OA\Property(example: 2)]
         public int $category_id,
+        #[OA\Property(example: true)]
         public bool $in_stock,
+        #[OA\Property(example: 4.8)]
         public float $rating,
+        #[OA\Property(example: '2026-04-21T15:00:00+00:00', nullable: true)]
         public ?string $created_at,
+        #[OA\Property(example: '2026-04-21T15:00:00+00:00', nullable: true)]
         public ?string $updated_at,
     ) {
     }

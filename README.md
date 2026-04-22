@@ -53,6 +53,7 @@
 - индексирование, вынесенное в `Infrastructure`
 - фабрики и сиды для наполнения каталога
 - `k6`-сценарий для нагрузочного тестирования поиска
+- OpenAPI/Swagger-нотации прямо в API-слое
 
 ## Стек
 
@@ -99,6 +100,15 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 ```
 
 Если `q` передан, поиск идет через инфраструктурный Meilisearch-адаптер. Если `q` пустой, используется database fallback.
+
+OpenAPI-нотации размещены рядом с API-кодом:
+
+- [OpenApiSpec.php](app/OpenApi/OpenApiSpec.php)
+- [ProductIndexController.php](app/Http/Controllers/ProductIndexController.php)
+- [ProductResponseData.php](app/Http/Responses/ProductResponseData.php)
+- [ProductPageResponseData.php](app/Http/Responses/ProductPageResponseData.php)
+
+Для генерации спецификации используется `swagger-php`.
 
 ## Архитектура
 
@@ -366,6 +376,18 @@ php artisan test
 
 ```bash
 vendor/bin/phpstan analyse app src tests routes database --no-progress --memory-limit=512M
+```
+
+Генерация OpenAPI spec:
+
+```bash
+composer docs:openapi
+```
+
+После генерации файл будет лежать в:
+
+```text
+storage/api-docs/openapi.yaml
 ```
 
 Тестовое окружение использует `SEARCH_DRIVER=database`, поэтому тесты не зависят от живого Meilisearch.

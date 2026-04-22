@@ -4,20 +4,34 @@ declare(strict_types=1);
 namespace App\Http\Responses;
 
 use Domain\Product\ProductPage;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'ProductPageResponse',
+    required: ['current_page', 'data', 'from', 'last_page', 'path', 'per_page', 'to', 'total'],
+)]
 final readonly class ProductPageResponseData
 {
     /**
      * @param  list<ProductResponseData>  $data
      */
     public function __construct(
+        #[OA\Property(example: 1)]
         public int $current_page,
+        /** @var list<ProductResponseData> */
+        #[OA\Property(type: 'array', items: new OA\Items(ref: '#/components/schemas/ProductResponse'))]
         public array $data,
+        #[OA\Property(example: 1, nullable: true)]
         public ?int $from,
+        #[OA\Property(example: 10)]
         public int $last_page,
+        #[OA\Property(example: 'http://localhost/api/products')]
         public string $path,
+        #[OA\Property(example: 20)]
         public int $per_page,
+        #[OA\Property(example: 20, nullable: true)]
         public ?int $to,
+        #[OA\Property(example: 200)]
         public int $total,
     ) {
     }
