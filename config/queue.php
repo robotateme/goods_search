@@ -129,4 +129,9 @@ return [
         'table' => 'failed_jobs',
     ],
 
+    'dedup' => [
+        'redis_connection' => env('QUEUE_DEDUP_REDIS_CONNECTION', 'default'),
+        'ttl_seconds' => (int) env('QUEUE_DEDUP_TTL_SECONDS', 30),
+    ],
+
 ];

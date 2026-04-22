@@ -8,8 +8,12 @@ use App\Jobs\IndexProductInSearchJob;
 use App\Jobs\RemoveProductFromSearchJob;
 use App\Jobs\SyncProductSearchSettingsJob;
 use App\Models\Product;
+use Application\Contracts\Queue\QueueBus;
+use Illuminate\Contracts\Redis\Factory as RedisFactory;
+use Illuminate\Redis\Connections\Connection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
+use Infrastructure\Queue\RedisQueueDeduplicator;
 use Tests\TestCase;
 
 class SearchIndexQueueingTest extends TestCase
@@ -45,5 +49,64 @@ class SearchIndexQueueingTest extends TestCase
 
         Bus::assertDispatched(SyncProductSearchSettingsJob::class);
         Bus::assertDispatched(ImportProductsToSearchJob::class);
+    }
+
+    // Проверяет, что повторная постановка index job для одного товара дедуплицируется.
+    public function test_index_job_dispatch_is_deduplicated_for_same_product(): void
+    {
+        $product = Product::factory()->createOne();
+
+        Bus::fake();
+        $this->app->instance(RedisFactory::class, new class implements RedisFactory
+        {
+            private readonly Connection $connection;
+
+            public function __construct()
+            {
+                $this->connection = new class extends Connection
+                {
+                    /** @var array<string, true> */
+                    private array $claimedKeys = [];
+
+                    /**
+                     * @param array<int, string>|string $channels
+                     */
+                    public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void
+                    {
+                    }
+
+                    /**
+                     * @return int
+                     */
+                    public function eval(string $script, int $numberOfKeys, string ...$arguments): int
+                    {
+                        $key = $arguments[0] ?? '';
+
+                        if (isset($this->claimedKeys[$key])) {
+                            return 0;
+                        }
+
+                        $this->claimedKeys[$key] = true;
+
+                        return 1;
+                    }
+                };
+            }
+
+            public function connection($name = null): Connection
+            {
+                return $this->connection;
+            }
+        });
+        $this->app['config']->set('queue.default', 'redis');
+        $this->app['config']->set('queue.dedup.ttl_seconds', 30);
+        $this->app->forgetInstance(RedisQueueDeduplicator::class);
+        $this->app->forgetInstance(QueueBus::class);
+        $queueBus = $this->app->make(QueueBus::class);
+
+        $queueBus->dispatch(new IndexProductInSearchJob($product->id));
+        $queueBus->dispatch(new IndexProductInSearchJob($product->id));
+
+        Bus::assertDispatchedTimes(IndexProductInSearchJob::class, 1);
     }
 }
