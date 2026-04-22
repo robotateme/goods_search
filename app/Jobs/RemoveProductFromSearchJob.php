@@ -7,7 +7,7 @@ use Application\Contracts\Search\ProductSearchIndexer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class RemoveProductFromSearchJob implements ShouldQueue
+final class RemoveProductFromSearchJob implements ShouldQueue
 {
     use Queueable;
 

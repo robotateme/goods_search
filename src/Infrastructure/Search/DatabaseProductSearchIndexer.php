@@ -6,7 +6,7 @@ namespace Infrastructure\Search;
 
 use Application\Contracts\Search\ProductSearchIndexer;
 
-class DatabaseProductSearchIndexer implements ProductSearchIndexer
+final readonly class DatabaseProductSearchIndexer implements ProductSearchIndexer
 {
     public function syncSettings(): void
     {

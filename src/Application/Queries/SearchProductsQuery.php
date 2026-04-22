@@ -5,7 +5,7 @@ namespace Application\Queries;
 
 use Domain\Product\ProductSearchCriteria;
 
-class SearchProductsQuery
+final readonly class SearchProductsQuery
 {
     public function __construct(
         public readonly ProductSearchCriteria $criteria,

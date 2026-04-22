@@ -9,7 +9,7 @@ use Application\Handlers\SearchProductsHandler;
 use Application\Queries\SearchProductsQueryFactory;
 use Illuminate\Http\JsonResponse;
 
-class ProductIndexController extends Controller
+final class ProductIndexController extends Controller
 {
     public function __construct(
         private readonly SearchProductsHandler $handler,

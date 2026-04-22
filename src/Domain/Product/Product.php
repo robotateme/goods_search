@@ -10,10 +10,10 @@ final readonly class Product
     public function __construct(
         public int $id,
         public string $name,
-        public string $price,
+        public Price $price,
         public int $categoryId,
         public bool $inStock,
-        public float $rating,
+        public Rating $rating,
         public ?DateTimeImmutable $createdAt,
         public ?DateTimeImmutable $updatedAt,
     ) {

@@ -8,13 +8,16 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-class ProductIndexRequest extends FormRequest
+final class ProductIndexRequest extends FormRequest
 {
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * @return array<string, list<mixed>>
+     */
     public function rules(): array
     {
         return [
@@ -36,7 +39,17 @@ class ProductIndexRequest extends FormRequest
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *     q?: string|null,
+     *     price_from?: float|int|string|null,
+     *     price_to?: float|int|string|null,
+     *     category_id?: int|string|null,
+     *     in_stock?: bool|string|null,
+     *     rating_from?: float|int|string|null,
+     *     sort?: string|null,
+     *     page?: int|string|null,
+     *     per_page?: int|string|null
+     * }
      */
     public function filters(): array
     {

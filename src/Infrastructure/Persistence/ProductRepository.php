@@ -8,7 +8,7 @@ use App\Models\Product as ProductModel;
 use Closure;
 use Domain\Product\Product;
 
-class ProductRepository implements ProductRepositoryInterface
+final readonly class ProductRepository implements ProductRepositoryInterface
 {
     public function __construct(
         private readonly ProductModelMapper $mapper,
@@ -22,28 +22,39 @@ class ProductRepository implements ProductRepositoryInterface
         return $product === null ? null : $this->mapper->map($product);
     }
 
+    /**
+     * @param  list<int>  $ids
+     * @return list<Product>
+     */
     public function getByIds(array $ids): array
     {
-        return ProductModel::query()
-            ->with('category')
-            ->whereIn('id', $ids)
-            ->get()
-            ->map(fn (ProductModel $product) => $this->mapper->map($product))
-            ->values()
-            ->all();
+        $mapped = [];
+
+        foreach (ProductModel::whereIn('id', $ids)->cursor() as $product) {
+            $mapped[] = $this->mapper->map($product);
+        }
+
+        return $mapped;
     }
 
+    /**
+     * @param  Closure(list<Product>): void  $callback
+     */
     public function chunkById(int $chunkSize, Closure $callback): void
     {
-        ProductModel::query()
-            ->orderBy('id')
-            ->chunk($chunkSize, function ($products) use ($callback): void {
-                $callback(
-                    $products
-                        ->map(fn (ProductModel $product) => $this->mapper->map($product))
-                        ->values()
-                        ->all(),
-                );
-            });
+        $mapped = [];
+
+        foreach (ProductModel::orderBy('id')->lazy($chunkSize) as $product) {
+            $mapped[] = $this->mapper->map($product);
+
+            if (count($mapped) === $chunkSize) {
+                $callback($mapped);
+                $mapped = [];
+            }
+        }
+
+        if ($mapped !== []) {
+            $callback($mapped);
+        }
     }
 }

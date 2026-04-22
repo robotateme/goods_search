@@ -8,7 +8,7 @@ use Application\Contracts\Search\ProductSearchIndexer;
 use Domain\Product\Product;
 use Meilisearch\Client;
 
-class MeilisearchProductSearchIndexer implements ProductSearchIndexer
+final readonly class MeilisearchProductSearchIndexer implements ProductSearchIndexer
 {
     public function __construct(
         private readonly Client $client,
@@ -32,9 +32,10 @@ class MeilisearchProductSearchIndexer implements ProductSearchIndexer
         $this->syncSettings();
 
         $this->products->chunkById(500, function ($products): void {
-            $documents = collect($products)
-                ->map(fn (Product $product) => $this->mapper->map($product))
-                ->all();
+            $documents = array_map(
+                fn (Product $product): array => $this->mapper->map($product),
+                $products,
+            );
 
             if ($documents !== []) {
                 $this->client

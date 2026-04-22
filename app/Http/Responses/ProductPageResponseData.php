@@ -39,6 +39,27 @@ final readonly class ProductPageResponseData
         );
     }
 
+    /**
+     * @return array{
+     *     current_page: int,
+     *     data: list<array{
+     *         id: int,
+     *         name: string,
+     *         price: string,
+     *         category_id: int,
+     *         in_stock: bool,
+     *         rating: float,
+     *         created_at: string|null,
+     *         updated_at: string|null
+     *     }>,
+     *     from: int|null,
+     *     last_page: int,
+     *     path: string,
+     *     per_page: int,
+     *     to: int|null,
+     *     total: int
+     * }
+     */
     public function toArray(): array
     {
         return [

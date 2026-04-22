@@ -10,21 +10,21 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
 Artisan::command('inspire', function (): void {
-    $this->comment(Inspiring::quote());
+    echo Inspiring::quote().PHP_EOL;
 })->purpose('Display an inspiring quote');
 
 Artisan::command('search:products:sync', function (QueueBus $queueBus): int {
     $queueBus->dispatch(new SyncProductSearchSettingsJob());
-    $this->info('Product search settings sync queued.');
+    echo 'Product search settings sync queued.'.PHP_EOL;
 
-    return self::SUCCESS;
+    return 0;
 })->purpose('Sync product search index settings');
 
 Artisan::command('search:products:import', function (QueueBus $queueBus): int {
     $queueBus->dispatch(new ImportProductsToSearchJob());
-    $this->info('Products import queued.');
+    echo 'Products import queued.'.PHP_EOL;
 
-    return self::SUCCESS;
+    return 0;
 })->purpose('Import products into the search index');
 
 Artisan::command('catalog:seed {products=5000} {categories=12}', function (int $products, int $categories): int {
@@ -33,7 +33,7 @@ Artisan::command('catalog:seed {products=5000} {categories=12}', function (int $
         productsCount: $products,
     ))->run();
 
-    $this->info(sprintf('Catalog seeded: %d categories, %d products.', $categories, $products));
+    echo sprintf('Catalog seeded: %d categories, %d products.', $categories, $products).PHP_EOL;
 
-    return self::SUCCESS;
+    return 0;
 })->purpose('Seed catalog data for search and load testing');

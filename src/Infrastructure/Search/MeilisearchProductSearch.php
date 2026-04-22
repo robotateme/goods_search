@@ -11,13 +11,37 @@ use Domain\Product\ProductSearchCriteria;
 use Domain\Product\ProductSort;
 use Meilisearch\Client;
 
-class MeilisearchProductSearch implements ProductSearch
+final readonly class MeilisearchProductSearch implements ProductSearch
 {
     public function __construct(
         private readonly Client $client,
         private readonly DatabaseProductSearch $databaseProductSearch,
         private readonly ProductRepositoryInterface $products,
     ) {
+    }
+
+    /**
+     * @param  array{hits?: list<array<string, mixed>>, totalHits?: int, estimatedTotalHits?: int}  $results
+     * @return list<int>
+     */
+    private function extractIds(array $results): array
+    {
+        $ids = [];
+
+        foreach ($results['hits'] ?? [] as $hit) {
+            $id = $hit['id'] ?? null;
+
+            if (is_int($id)) {
+                $ids[] = $id;
+                continue;
+            }
+
+            if (is_string($id) && ctype_digit($id)) {
+                $ids[] = (int) $id;
+            }
+        }
+
+        return $ids;
     }
 
     public function search(ProductSearchCriteria $criteria): ProductPage
@@ -35,13 +59,11 @@ class MeilisearchProductSearch implements ProductSearch
                 'page' => $criteria->page,
             ]));
 
-        $ids = collect($results['hits'] ?? [])->pluck('id')->map(fn (mixed $id) => (int) $id)->all();
+        $ids = $this->extractIds($results);
         $positions = array_flip($ids);
+        $products = $this->products->getByIds($ids);
 
-        $products = collect($this->products->getByIds($ids))
-            ->sortBy(fn (Product $product) => $positions[$product->id] ?? PHP_INT_MAX)
-            ->values()
-            ->all();
+        usort($products, fn (Product $left, Product $right): int => ($positions[$left->id] ?? PHP_INT_MAX) <=> ($positions[$right->id] ?? PHP_INT_MAX));
 
         return new ProductPage(
             $products,
@@ -78,6 +100,9 @@ class MeilisearchProductSearch implements ProductSearch
         return $expressions === [] ? null : implode(' AND ', $expressions);
     }
 
+    /**
+     * @return list<string>
+     */
     private function buildSort(ProductSort $sort): array
     {
         return match ($sort) {

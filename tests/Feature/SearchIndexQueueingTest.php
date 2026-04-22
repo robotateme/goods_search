@@ -8,6 +8,7 @@ use App\Jobs\IndexProductInSearchJob;
 use App\Jobs\RemoveProductFromSearchJob;
 use App\Jobs\SyncProductSearchSettingsJob;
 use App\Models\Product;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Tests\TestCase;
 
@@ -24,7 +25,7 @@ class SearchIndexQueueingTest extends TestCase
     {
         Bus::fake();
 
-        $product = Product::factory()->create();
+        $product = Product::factory()->createOne();
         $productId = $product->id;
 
         $product->delete();
@@ -37,8 +38,8 @@ class SearchIndexQueueingTest extends TestCase
     {
         Bus::fake();
 
-        $this->artisan('search:products:sync')->assertSuccessful();
-        $this->artisan('search:products:import')->assertSuccessful();
+        self::assertSame(0, Artisan::call('search:products:sync'));
+        self::assertSame(0, Artisan::call('search:products:import'));
 
         Bus::assertDispatched(SyncProductSearchSettingsJob::class);
         Bus::assertDispatched(ImportProductsToSearchJob::class);

@@ -20,11 +20,11 @@ class CatalogSeeder extends Seeder
 
     public function run(): void
     {
-        $categories = Category::factory()
+        Category::factory()
             ->count($this->categoriesCount)
             ->create();
 
-        $categoryIds = $categories->modelKeys();
+        $categoryIds = Category::query()->pluck('id')->all();
         $faker = fake();
         $chunkSize = 1000;
         $remaining = $this->productsCount;

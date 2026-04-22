@@ -3,9 +3,6 @@ declare(strict_types=1);
 
 namespace Domain\Product;
 
-/**
- * @phpstan-type ProductList list<Product>
- */
 final readonly class ProductPage
 {
     /**

@@ -105,6 +105,7 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 Поиск и индексирование вынесены из контроллера и модели в отдельные слои:
 
 - domain entity: [src/Domain/Product/Product.php](src/Domain/Product/Product.php)
+- value objects: [src/Domain/Product/Price.php](src/Domain/Product/Price.php), [src/Domain/Product/Rating.php](src/Domain/Product/Rating.php)
 - domain criteria: [src/Domain/Product/ProductSearchCriteria.php](src/Domain/Product/ProductSearchCriteria.php)
 - domain sort enum: [src/Domain/Product/ProductSort.php](src/Domain/Product/ProductSort.php)
 - domain page result: [src/Domain/Product/ProductPage.php](src/Domain/Product/ProductPage.php)
@@ -140,7 +141,7 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 Роль `Domain` в этом проекте:
 
 - `Domain` изолирует бизнес-типы поиска от Laravel, Eloquent и Meilisearch
-- `Domain` задаёт стабильный контракт между слоями через `Product`, `ProductSearchCriteria`, `ProductSort` и `ProductPage`
+- `Domain` задаёт стабильный контракт между слоями через `Product`, `Price`, `Rating`, `ProductSearchCriteria`, `ProductSort` и `ProductPage`
 - `Application` работает с доменными типами и не зависит от деталей HTTP, SQL и внешнего search backend
 - `Infrastructure` адаптирует базу данных и Meilisearch к этим типам, не протаскивая framework-specific детали вверх
 
@@ -149,6 +150,13 @@ GET /api/products?q=mouse&price_from=100&price_to=300&category_id=2&in_stock=tru
 - это не rich domain model и не полноценный DDD-модуль
 - в `Domain` почти нет сложных бизнес-правил, он в первую очередь фиксирует предметные типы и инварианты поискового сценария
 - для объёма этого задания такой уровень изоляции достаточен и помогает держать границы слоёв явными
+
+Из Eloquent casts в домен вынесены именно предметные значения:
+
+- `price` представлен через `Price`
+- `rating` представлен через `Rating`
+
+Технические преобразования Laravel-модели, такие как `boolean` и `datetime`, оставлены в Eloquent cast layer, потому что они относятся к адаптации ORM, а не к самостоятельным предметным value object.
 
 DI-привязки разнесены по провайдерам:
 - [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php) — bootstrapping observer

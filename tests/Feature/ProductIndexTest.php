@@ -32,10 +32,10 @@ class ProductIndexTest extends TestCase
 
     public function test_it_filters_by_all_supported_filters(): void
     {
-        $targetCategory = Category::factory()->create();
-        $otherCategory = Category::factory()->create();
+        $targetCategory = Category::factory()->createOne();
+        $otherCategory = Category::factory()->createOne();
 
-        $matchingProduct = Product::factory()->create([
+        $matchingProduct = Product::factory()->createOne([
             'name' => 'Wireless Mouse Pro',
             'price' => 149.99,
             'category_id' => $targetCategory->id,
@@ -43,7 +43,7 @@ class ProductIndexTest extends TestCase
             'rating' => 4.8,
         ]);
 
-        Product::factory()->create([
+        Product::factory()->createOne([
             'name' => 'Wireless Keyboard',
             'price' => 149.99,
             'category_id' => $targetCategory->id,
@@ -51,7 +51,7 @@ class ProductIndexTest extends TestCase
             'rating' => 4.8,
         ]);
 
-        Product::factory()->create([
+        Product::factory()->createOne([
             'name' => 'Wireless Mouse Basic',
             'price' => 90.00,
             'category_id' => $targetCategory->id,
@@ -59,7 +59,7 @@ class ProductIndexTest extends TestCase
             'rating' => 4.8,
         ]);
 
-        Product::factory()->create([
+        Product::factory()->createOne([
             'name' => 'Wireless Mouse Premium',
             'price' => 149.99,
             'category_id' => $otherCategory->id,
@@ -67,7 +67,7 @@ class ProductIndexTest extends TestCase
             'rating' => 4.8,
         ]);
 
-        Product::factory()->create([
+        Product::factory()->createOne([
             'name' => 'Wireless Mouse Mini',
             'price' => 149.99,
             'category_id' => $targetCategory->id,
@@ -90,9 +90,9 @@ class ProductIndexTest extends TestCase
 
     public function test_it_sorts_by_supported_sort_values(): void
     {
-        $category = Category::factory()->create();
+        $category = Category::factory()->createOne();
 
-        $oldest = Product::factory()->create([
+        $oldest = Product::factory()->createOne([
             'name' => 'Old Product',
             'category_id' => $category->id,
             'price' => 200.00,
@@ -101,7 +101,7 @@ class ProductIndexTest extends TestCase
             'updated_at' => now()->subDays(3),
         ]);
 
-        $cheapest = Product::factory()->create([
+        $cheapest = Product::factory()->createOne([
             'name' => 'Cheap Product',
             'category_id' => $category->id,
             'price' => 50.00,
@@ -110,7 +110,7 @@ class ProductIndexTest extends TestCase
             'updated_at' => now()->subDays(2),
         ]);
 
-        $highestRated = Product::factory()->create([
+        $highestRated = Product::factory()->createOne([
             'name' => 'Top Rated Product',
             'category_id' => $category->id,
             'price' => 120.00,
@@ -119,7 +119,7 @@ class ProductIndexTest extends TestCase
             'updated_at' => now()->subDay(),
         ]);
 
-        $newest = Product::factory()->create([
+        $newest = Product::factory()->createOne([
             'name' => 'Newest Product',
             'category_id' => $category->id,
             'price' => 180.00,

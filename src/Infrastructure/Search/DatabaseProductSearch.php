@@ -10,7 +10,7 @@ use Domain\Product\ProductSearchCriteria;
 use Infrastructure\Persistence\ProductModelMapper;
 use Infrastructure\Persistence\ProductSearchQueryAdapter;
 
-class DatabaseProductSearch implements ProductSearch
+final readonly class DatabaseProductSearch implements ProductSearch
 {
     public function __construct(
         private readonly ProductSearchQueryAdapter $queryAdapter,
@@ -23,9 +23,16 @@ class DatabaseProductSearch implements ProductSearch
         $paginator = $this->queryAdapter
             ->build($criteria)
             ->paginate($criteria->perPage, ['*'], 'page', $criteria->page);
+        $items = [];
+
+        foreach ($paginator->getCollection() as $product) {
+            if ($product instanceof ProductModel) {
+                $items[] = $this->mapper->map($product);
+            }
+        }
 
         return new ProductPage(
-            $paginator->getCollection()->map(fn (ProductModel $product) => $this->mapper->map($product))->values()->all(),
+            $items,
             $paginator->total(),
             $paginator->perPage(),
             $paginator->currentPage(),

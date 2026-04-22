@@ -7,7 +7,7 @@ use Application\Contracts\Search\ProductSearchIndexer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class ImportProductsToSearchJob implements ShouldQueue
+final class ImportProductsToSearchJob implements ShouldQueue
 {
     use Queueable;
 

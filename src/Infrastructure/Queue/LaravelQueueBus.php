@@ -7,7 +7,7 @@ namespace Infrastructure\Queue;
 use Application\Contracts\Queue\QueueBus;
 use Illuminate\Contracts\Bus\Dispatcher;
 
-class LaravelQueueBus implements QueueBus
+final readonly class LaravelQueueBus implements QueueBus
 {
     public function __construct(
         private readonly Dispatcher $dispatcher,

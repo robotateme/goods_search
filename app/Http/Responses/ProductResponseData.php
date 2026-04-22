@@ -24,15 +24,27 @@ final readonly class ProductResponseData
         return new self(
             id: $product->id,
             name: $product->name,
-            price: $product->price,
+            price: $product->price->value(),
             category_id: $product->categoryId,
             in_stock: $product->inStock,
-            rating: $product->rating,
+            rating: $product->rating->value(),
             created_at: $product->createdAt?->format(DATE_ATOM),
             updated_at: $product->updatedAt?->format(DATE_ATOM),
         );
     }
 
+    /**
+     * @return array{
+     *     id: int,
+     *     name: string,
+     *     price: string,
+     *     category_id: int,
+     *     in_stock: bool,
+     *     rating: float,
+     *     created_at: string|null,
+     *     updated_at: string|null
+     * }
+     */
     public function toArray(): array
     {
         return [
