@@ -220,6 +220,14 @@ npm install
 ./vendor/bin/sail up -d
 ```
 
+Данные PostgreSQL, Redis и Meilisearch в `compose.yaml` вынесены в bind mounts внутри проекта:
+
+- `.docker/pgsql`
+- `.docker/redis`
+- `.docker/meilisearch`
+
+За счёт этого удаление docker named volumes не сбрасывает локальное состояние сервисов.
+
 3. Сгенерировать ключ приложения:
 
 ```bash
@@ -432,6 +440,12 @@ storage/api-docs/openapi.yaml
 - `redis`
 - `meilisearch`
 - `queue`
+
+Stateful data хранится не в docker named volumes, а в локальных bind mounts:
+
+- `.docker/pgsql`
+- `.docker/redis`
+- `.docker/meilisearch`
 
 Проверить маршрут API:
 

@@ -18,6 +18,7 @@ use Tests\TestCase;
 
 class CachedProductSearchTest extends TestCase
 {
+    // Проверяет, что одинаковые поисковые критерии переиспользуют кэшированный результат.
     public function test_it_reuses_cached_search_results_for_identical_criteria(): void
     {
         $calls = 0;
@@ -73,6 +74,7 @@ class CachedProductSearchTest extends TestCase
         self::assertSame($first->items[0]->name, $second->items[0]->name);
     }
 
+    // Проверяет, что смена версии search cache инвалидирует ранее сохранённый результат.
     public function test_cache_version_bump_invalidates_previous_results(): void
     {
         $calls = 0;

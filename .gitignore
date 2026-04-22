@@ -20,6 +20,14 @@
 /storage/*.key
 /storage/pail
 /vendor
+/.docker/*
+!/.docker/.gitignore
+!/.docker/pgsql/
+!/.docker/pgsql/.gitkeep
+!/.docker/redis/
+!/.docker/redis/.gitkeep
+!/.docker/meilisearch/
+!/.docker/meilisearch/.gitkeep
 _ide_helper.php
 Homestead.json
 Homestead.yaml

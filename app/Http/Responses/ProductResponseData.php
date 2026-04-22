@@ -17,7 +17,7 @@ final readonly class ProductResponseData
         public int $id,
         #[OA\Property(example: 'Wireless Mouse Pro')]
         public string $name,
-        #[OA\Property(example: '149.99')]
+        #[OA\Property(type: 'string', pattern: '^\\d+(\\.\\d{1,2})?$', example: '149.99')]
         public string $price,
         #[OA\Property(example: 2)]
         public int $category_id,
@@ -25,9 +25,9 @@ final readonly class ProductResponseData
         public bool $in_stock,
         #[OA\Property(example: 4.8)]
         public float $rating,
-        #[OA\Property(example: '2026-04-21T15:00:00+00:00', nullable: true)]
+        #[OA\Property(type: 'string', format: 'date-time', example: '2026-04-21T15:00:00+00:00', nullable: true)]
         public ?string $created_at,
-        #[OA\Property(example: '2026-04-21T15:00:00+00:00', nullable: true)]
+        #[OA\Property(type: 'string', format: 'date-time', example: '2026-04-21T15:00:00+00:00', nullable: true)]
         public ?string $updated_at,
     ) {
     }

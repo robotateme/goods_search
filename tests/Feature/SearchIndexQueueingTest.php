@@ -21,6 +21,7 @@ class SearchIndexQueueingTest extends TestCase
         $this->artisan('migrate:fresh');
     }
 
+    // Проверяет, что изменения товара ставят задачи индексации и удаления из поиска в очередь.
     public function test_product_changes_queue_search_index_jobs(): void
     {
         Bus::fake();
@@ -34,6 +35,7 @@ class SearchIndexQueueingTest extends TestCase
         Bus::assertDispatched(RemoveProductFromSearchJob::class, fn (RemoveProductFromSearchJob $job) => $job->productId === $productId);
     }
 
+    // Проверяет, что консольные команды поиска ставят bulk-задачи в очередь.
     public function test_console_commands_queue_search_index_jobs(): void
     {
         Bus::fake();

@@ -8,34 +8,46 @@ use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
 use Infrastructure\RateLimit\LuaScriptResolver;
 use Infrastructure\RateLimit\RedisSlidingWindowRateLimiter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class RedisSlidingWindowRateLimiterTest extends TestCase
 {
-    public function test_it_maps_lua_response_to_domain_result(): void
-    {
-        $connection = new FakeRedisConnection([1, 57, 0]);
+    /**
+     * Проверяет преобразование ответа Lua-скрипта в результат domain-level rate limiter.
+     *
+     * @param array{0:int,1:int,2:int} $evalResult
+     */
+    #[DataProvider('attemptProvider')]
+    public function test_it_maps_lua_response_to_domain_result(
+        array $evalResult,
+        bool $expectedAllowed,
+        int $expectedRemaining,
+        int $expectedRetryAfterSeconds,
+    ): void {
+        $connection = new FakeRedisConnection($evalResult);
         $factory = new FakeRedisFactory($connection);
 
         $limiter = new RedisSlidingWindowRateLimiter($factory, new LuaScriptResolver(), $this->config());
         $result = $limiter->attempt('rate-limit:products:test', 60, 60, 1_000);
 
-        self::assertTrue($result->allowed);
-        self::assertSame(57, $result->remaining);
-        self::assertSame(0, $result->retryAfterSeconds);
+        self::assertSame($expectedAllowed, $result->allowed);
+        self::assertSame($expectedRemaining, $result->remaining);
+        self::assertSame($expectedRetryAfterSeconds, $result->retryAfterSeconds);
         self::assertCount(1, $connection->calls);
     }
 
-    public function test_it_converts_retry_after_from_milliseconds_to_seconds(): void
+    /**
+     * Набор сценариев ответа Redis/Lua для rate limiter.
+     *
+     * @return array<string, array{array{0:int,1:int,2:int}, bool, int, int}>
+     */
+    public static function attemptProvider(): array
     {
-        $factory = new FakeRedisFactory(new FakeRedisConnection([0, 60, 1500]));
-
-        $limiter = new RedisSlidingWindowRateLimiter($factory, new LuaScriptResolver(), $this->config());
-        $result = $limiter->attempt('rate-limit:products:test', 60, 60, 1_000);
-
-        self::assertFalse($result->allowed);
-        self::assertSame(60, $result->remaining);
-        self::assertSame(2, $result->retryAfterSeconds);
+        return [
+            'allowed request' => [[1, 57, 0], true, 57, 0],
+            'blocked request' => [[0, 60, 1500], false, 60, 2],
+        ];
     }
 
     private function config(): ConfigRepository

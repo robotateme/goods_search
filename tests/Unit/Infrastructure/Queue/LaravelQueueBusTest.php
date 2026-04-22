@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class LaravelQueueBusTest extends TestCase
 {
+    // Проверяет, что QueueBus делегирует асинхронную отправку диспетчеру Laravel.
     public function test_it_dispatches_commands(): void
     {
         $command = new class {};
@@ -22,6 +23,7 @@ class LaravelQueueBusTest extends TestCase
         self::assertSame($command, $dispatcher->lastCommand);
     }
 
+    // Проверяет, что QueueBus делегирует синхронную отправку диспетчеру Laravel.
     public function test_it_dispatches_commands_synchronously(): void
     {
         $command = new class {};

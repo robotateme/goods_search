@@ -1,0 +1,5 @@
+*
+!/.gitignore
+!/pgsql/
+!/redis/
+!/meilisearch/

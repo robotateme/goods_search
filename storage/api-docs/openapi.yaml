@@ -16,78 +16,23 @@ paths:
       operationId: products.index
       parameters:
         -
-          name: q
-          in: query
-          required: false
-          schema:
-            type: string
-            maxLength: 255
+          $ref: '#/components/parameters/ProductsQuery'
         -
-          name: price_from
-          in: query
-          required: false
-          schema:
-            type: number
-            format: float
-            minimum: 0
+          $ref: '#/components/parameters/ProductsPriceFrom'
         -
-          name: price_to
-          in: query
-          required: false
-          schema:
-            type: number
-            format: float
-            minimum: 0
+          $ref: '#/components/parameters/ProductsPriceTo'
         -
-          name: category_id
-          in: query
-          required: false
-          schema:
-            type: integer
-            minimum: 1
+          $ref: '#/components/parameters/ProductsCategoryId'
         -
-          name: in_stock
-          in: query
-          required: false
-          schema:
-            type: boolean
+          $ref: '#/components/parameters/ProductsInStock'
         -
-          name: rating_from
-          in: query
-          required: false
-          schema:
-            type: number
-            format: float
-            maximum: 5
-            minimum: 0
+          $ref: '#/components/parameters/ProductsRatingFrom'
         -
-          name: sort
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - price_asc
-              - price_desc
-              - rating_desc
-              - newest
+          $ref: '#/components/parameters/ProductsSort'
         -
-          name: page
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 1
-            minimum: 1
+          $ref: '#/components/parameters/ProductsPage'
         -
-          name: per_page
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 15
-            maximum: 100
-            minimum: 1
+          $ref: '#/components/parameters/ProductsPerPage'
       responses:
         '200':
           description: 'Paginated product list'
@@ -96,17 +41,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductPageResponse'
         '422':
-          description: 'Validation error'
-          content:
-            application/json:
-              schema:
-                required:
-                  - message
-                  - errors
-                properties:
-                  message: { type: string, example: 'The given data was invalid.' }
-                  errors: { type: object, additionalProperties: true }
-                type: object
+          $ref: '#/components/responses/ValidationError'
 components:
   schemas:
     ProductPageResponse:
@@ -167,6 +102,7 @@ components:
           example: 'Wireless Mouse Pro'
         price:
           type: string
+          pattern: '^\d+(\.\d{1,2})?$'
           example: '149.99'
         category_id:
           type: integer
@@ -180,13 +116,106 @@ components:
           example: 4.8
         created_at:
           type: string
+          format: date-time
           example: '2026-04-21T15:00:00+00:00'
           nullable: true
         updated_at:
           type: string
+          format: date-time
           example: '2026-04-21T15:00:00+00:00'
           nullable: true
       type: object
+  responses:
+    ValidationError:
+      description: 'Validation error'
+      content:
+        application/json:
+          schema:
+            required:
+              - message
+              - errors
+            properties:
+              message:
+                type: string
+                example: 'The given data was invalid.'
+              errors:
+                type: object
+                additionalProperties: true
+            type: object
+  parameters:
+    ProductsQuery:
+      name: q
+      in: query
+      required: false
+      schema:
+        type: string
+        maxLength: 255
+    ProductsPriceFrom:
+      name: price_from
+      in: query
+      required: false
+      schema:
+        type: number
+        format: float
+        minimum: 0
+    ProductsPriceTo:
+      name: price_to
+      in: query
+      required: false
+      schema:
+        type: number
+        format: float
+        minimum: 0
+    ProductsCategoryId:
+      name: category_id
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+    ProductsInStock:
+      name: in_stock
+      in: query
+      required: false
+      schema:
+        type: boolean
+    ProductsRatingFrom:
+      name: rating_from
+      in: query
+      required: false
+      schema:
+        type: number
+        format: float
+        maximum: 5
+        minimum: 0
+    ProductsSort:
+      name: sort
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - price_asc
+          - price_desc
+          - rating_desc
+          - newest
+    ProductsPage:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    ProductsPerPage:
+      name: per_page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 15
+        maximum: 100
+        minimum: 1
 tags:
   -
     name: Products

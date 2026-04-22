@@ -19,6 +19,7 @@ class RedisSlidingWindowRateLimitTest extends TestCase
         $this->artisan('migrate:fresh');
     }
 
+    // Проверяет, что middleware rate limit возвращает 429 и заголовок Retry-After.
     public function test_it_returns_429_when_route_rate_limit_is_exceeded(): void
     {
         $this->app->instance(RedisFactory::class, new FeatureFakeRedisFactory(
