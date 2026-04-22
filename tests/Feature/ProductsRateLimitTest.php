@@ -1,0 +1,82 @@
+<?php
+declare(strict_types=1);
+
+namespace Tests\Feature;
+
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Contracts\Redis\Factory as RedisFactory;
+use Illuminate\Redis\Connections\Connection;
+use Infrastructure\RateLimit\LuaScriptResolver;
+use Infrastructure\RateLimit\RedisSlidingWindowRateLimiter;
+use Tests\TestCase;
+
+class ProductsRateLimitTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->artisan('migrate:fresh');
+    }
+
+    public function test_it_returns_429_when_products_rate_limit_is_exceeded(): void
+    {
+        $this->app->instance(RedisFactory::class, new FeatureFakeRedisFactory(
+            new FeatureFakeRedisConnection([0, 0, 12_000]),
+        ));
+        $this->app->instance(
+            RedisSlidingWindowRateLimiter::class,
+            new RedisSlidingWindowRateLimiter(
+                $this->app->make(RedisFactory::class),
+                new LuaScriptResolver(),
+                $this->app->make(ConfigRepository::class),
+            ),
+        );
+
+        $response = $this->getJson('/api/products');
+
+        $response
+            ->assertTooManyRequests()
+            ->assertHeader('Retry-After', '12')
+            ->assertJsonPath('message', 'Too many requests.');
+    }
+}
+
+final class FeatureFakeRedisFactory implements RedisFactory
+{
+    public function __construct(
+        private readonly Connection $connection,
+    ) {
+    }
+
+    public function connection($name = null): Connection
+    {
+        return $this->connection;
+    }
+}
+
+final class FeatureFakeRedisConnection extends Connection
+{
+    /**
+     * @param array{0:int,1:int,2:int} $evalResult
+     */
+    public function __construct(
+        private readonly array $evalResult,
+    ) {
+    }
+
+    /**
+     * @param array<int, string>|string $channels
+     */
+    public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void
+    {
+    }
+
+    /**
+     * @return array{0:int,1:int,2:int}
+     */
+    public function eval(string $script, int $numberOfKeys, string ...$arguments): array
+    {
+        return $this->evalResult;
+    }
+}

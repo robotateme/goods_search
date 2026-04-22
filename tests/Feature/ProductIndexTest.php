@@ -15,6 +15,7 @@ class ProductIndexTest extends TestCase
         parent::setUp();
 
         $this->artisan('migrate:fresh');
+        config()->set('rate_limit.products.enabled', false);
     }
 
     public function test_it_returns_paginated_products(): void
