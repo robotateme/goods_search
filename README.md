@@ -134,6 +134,8 @@ OpenAPI-нотации размещены рядом с API-кодом:
 - database fallback search: [src/Infrastructure/Search/DatabaseProductSearch.php](src/Infrastructure/Search/DatabaseProductSearch.php)
 - document mapper: [src/Infrastructure/Search/ProductSearchDocumentMapper.php](src/Infrastructure/Search/ProductSearchDocumentMapper.php)
 - observer для автоиндексации: [src/Infrastructure/Search/ProductObserver.php](src/Infrastructure/Search/ProductObserver.php)
+- file-based infrastructure scripts: [src/Infrastructure/Scripts](src/Infrastructure/Scripts)
+- scripts resolver: [src/Infrastructure/Support/ScriptResolver.php](src/Infrastructure/Support/ScriptResolver.php)
 
 Очереди:
 
@@ -157,18 +159,10 @@ OpenAPI-нотации размещены рядом с API-кодом:
 Роль `Domain` в этом проекте:
 
 - `Domain` изолирует бизнес-типы поиска от Laravel, Eloquent и Meilisearch
-- `Domain` задаёт стабильный контракт между слоями через `Entity`, `ValueObject` и `Search` подмодули продукта
-- `Product` живёт в `Entity`, typed ids / money / rating / pagination primitives живут в `ValueObject`, а search-specific модели живут в `Search`
-- `Application` работает с доменными типами и не зависит от деталей HTTP, SQL и внешнего search backend
-- `Infrastructure` адаптирует базу данных и Meilisearch к этим типам, не протаскивая framework-specific детали вверх
+- `Domain` задаёт стабильный контракт между слоями через `Entity`, `ValueObject` и `Search`
+- домен здесь сознательно тонкий: он фиксирует предметные типы и инварианты поискового сценария, но не превращается в тяжёлый DDD-модуль
 
-При этом домен здесь намеренно тонкий:
-
-- это не rich domain model и не полноценный DDD-модуль
-- в `Domain` почти нет сложных бизнес-правил, он в первую очередь фиксирует предметные типы и инварианты поискового сценария
-- для объёма этого задания такой уровень изоляции достаточен и помогает держать границы слоёв явными
-
-В домене отдельно выделены предметные value objects и typed concepts:
+В домене выделены предметные value objects и typed concepts:
 
 - `price` представлен через `Price`
 - `rating` представлен через `Rating`
@@ -182,35 +176,9 @@ DI-привязки разнесены по провайдерам:
 - [app/Providers/RepositoryServiceProvider.php](app/Providers/RepositoryServiceProvider.php) — репозитории
 - [app/Providers/PortServiceProvider.php](app/Providers/PortServiceProvider.php) — порты и инфраструктурные адаптеры
 
-Контроллер не содержит поисковую бизнес-логику: он получает уже провалидированные HTTP query params из form request, передаёт их в `SearchProductsQueryFactory`, вызывает `SearchProductsHandler` и отдаёт ответ через отдельные HTTP response DTO.
+Контроллер остаётся тонким: получает уже провалидированные query params из form request, передаёт их в `SearchProductsQueryFactory`, вызывает `SearchProductsHandler` и отдаёт ответ через отдельные HTTP response DTO.
 
-Почему response DTO лежат в `app/Http`, а не в `Application`:
-
-- они описывают внешний JSON-контракт HTTP API, а не application-level результат use case
-- они знают о presentation-деталях, например о snake_case полях и структуре ответа для `response()->json(...)`
-- `Application` не должен зависеть от конкретного transport-формата, чтобы тот же use case можно было переиспользовать вне HTTP boundary
-
-Для database fallback логика фильтрации и сортировки вынесена из репозитория в отдельный `ProductSearchQueryAdapter`, а преобразование Eloquent-модели в доменный объект вынесено в `ProductModelMapper`. За счёт этого `ProductRepository` не содержит “жирный” search-метод и остаётся focused на операциях чтения, нужных для индексатора и восстановления документов по id.
-
-## Запуск
-
-Поднять окружение:
-
-```bash
-./vendor/bin/sail up -d
-```
-
-Установить зависимости:
-
-```bash
-composer install
-```
-
-Применить миграции:
-
-```bash
-./vendor/bin/sail artisan migrate
-```
+Для database fallback логика фильтрации и сортировки вынесена в `ProductSearchQueryAdapter`, а преобразование Eloquent-модели в доменный объект — в `ProductModelMapper`.
 
 ## Локальный деплой
 
@@ -299,6 +267,8 @@ REDIS_QUEUE_CONNECTION=default
 REDIS_QUEUE=default
 REDIS_QUEUE_RETRY_AFTER=90
 ```
+
+Lua-скрипты инфраструктуры хранятся в отдельных файлах внутри `src/Infrastructure/Scripts`, а загрузка идёт через `ScriptResolver`. Сейчас это используется для Redis sliding-window rate limit.
 
 ## Meilisearch
 
