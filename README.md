@@ -45,6 +45,10 @@ npm install
 curl "http://localhost/api/products?page=1&per_page=20"
 ```
 
+## Requirements
+
+Полные требования для staging без Docker вынесены в [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md).
+
 ## Структура решения
 
 - синхронный `GET /api/products`
