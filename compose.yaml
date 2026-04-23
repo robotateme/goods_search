@@ -58,11 +58,13 @@ services:
             POSTGRES_DB: '${DB_DATABASE}'
             POSTGRES_USER: '${DB_USERNAME}'
             POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+            PGDATA: '/var/lib/postgresql/18/docker'
         volumes:
             - './.docker/pgsql:/var/lib/postgresql'
             - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
         networks:
             - sail
+        restart: unless-stopped
         healthcheck:
             test:
                 - CMD

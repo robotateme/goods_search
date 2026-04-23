@@ -63,7 +63,7 @@ OpenAPI описан рядом с HTTP-кодом:
 - индексирование: [ProductSearchIndexer.php](../src/Application/Contracts/Search/ProductSearchIndexer.php), [DatabaseProductSearchIndexer.php](../src/Infrastructure/Database/Search/DatabaseProductSearchIndexer.php), [MeilisearchProductSearchIndexer.php](../src/Infrastructure/Search/MeilisearchProductSearchIndexer.php)
 - работа с БД: [ProductRepositoryInterface.php](../src/Application/Contracts/Repositories/ProductRepositoryInterface.php), [ProductSearchQueryAdapter.php](../src/Infrastructure/Database/ProductSearchQueryAdapter.php), [ProductModelMapper.php](../src/Infrastructure/Database/ProductModelMapper.php), [ProductRepository.php](../src/Infrastructure/Database/ProductRepository.php)
 - кэш поиска: [CachedProductSearch.php](../src/Infrastructure/Search/CachedProductSearch.php), [ProductPageCacheSerializer.php](../src/Infrastructure/Search/ProductPageCacheSerializer.php)
-- остальное: [ProductSearchDocumentMapper.php](../src/Infrastructure/Search/ProductSearchDocumentMapper.php), [ProductObserver.php](../src/Infrastructure/Search/ProductObserver.php), [src/Infrastructure/Scripts](../src/Infrastructure/Scripts), [ScriptResolver.php](../src/Infrastructure/Support/ScriptResolver.php)
+- остальное: [ProductSearchDocumentMapper.php](../src/Infrastructure/Search/ProductSearchDocumentMapper.php), [ProductObserver.php](../src/Infrastructure/Search/ProductObserver.php), [src/Infrastructure/Redis/Scripts](../src/Infrastructure/Redis/Scripts), [ScriptResolver.php](../src/Infrastructure/Redis/ScriptResolver.php)
 
 Очереди:
 

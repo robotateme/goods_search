@@ -25,6 +25,8 @@ npm install
 
 Поэтому удаление docker volumes не стирает локальные данные проекта.
 
+Для PostgreSQL путь данных зафиксирован через `PGDATA=/var/lib/postgresql/18/docker`, поэтому после перезапуска контейнера и после перезагрузки Docker данные остаются в `.docker/pgsql`.
+
 3. Сгенерировать ключ приложения:
 
 ```bash
@@ -88,7 +90,7 @@ REDIS_QUEUE=default
 REDIS_QUEUE_RETRY_AFTER=90
 ```
 
-Lua-скрипты лежат в `src/Infrastructure/Scripts`. Они загружаются через `ScriptResolver`. Сейчас они нужны для Redis rate limit.
+Lua-скрипты лежат в `src/Infrastructure/Redis/Scripts`. Они загружаются через `Infrastructure\Redis\ScriptResolver`. Сейчас они нужны для Redis rate limit и queue deduplication.
 
 ## Meilisearch
 
