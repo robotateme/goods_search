@@ -5,7 +5,7 @@ namespace App\Providers;
 
 use Application\Contracts\Repositories\ProductRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
-use Infrastructure\Persistence\ProductRepository;
+use Infrastructure\Database\ProductRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
 {

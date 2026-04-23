@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Infrastructure\RateLimit;
+namespace Infrastructure\Redis\RateLimit;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
-use Infrastructure\Support\ScriptResolver;
+use Infrastructure\Redis\ScriptResolver;
 
 final readonly class RedisSlidingWindowRateLimiter
 {

@@ -6,8 +6,8 @@ namespace Tests\Unit\Infrastructure\RateLimit;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
-use Infrastructure\RateLimit\RedisSlidingWindowRateLimiter;
-use Infrastructure\Support\ScriptResolver;
+use Infrastructure\Redis\RateLimit\RedisSlidingWindowRateLimiter;
+use Infrastructure\Redis\ScriptResolver;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

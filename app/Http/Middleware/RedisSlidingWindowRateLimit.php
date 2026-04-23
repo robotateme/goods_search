@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Infrastructure\RateLimit\RedisSlidingWindowRateLimiter;
+use Infrastructure\Redis\RateLimit\RedisSlidingWindowRateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
 final class RedisSlidingWindowRateLimit

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Infrastructure\Persistence;
+namespace Infrastructure\Database;
 
 use App\Models\Product as ProductModel;
 use Domain\Product\Entity\Product;

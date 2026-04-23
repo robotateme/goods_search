@@ -6,8 +6,8 @@ namespace Tests\Unit\Infrastructure\Queue;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
-use Infrastructure\Queue\RedisQueueDeduplicator;
-use Infrastructure\Support\ScriptResolver;
+use Infrastructure\Redis\Queue\RedisQueueDeduplicator;
+use Infrastructure\Redis\ScriptResolver;
 use PHPUnit\Framework\TestCase;
 
 class RedisQueueDeduplicatorTest extends TestCase

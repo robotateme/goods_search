@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 
-namespace Infrastructure\Queue;
+namespace Infrastructure\Ports\Queue;
 
 use Application\Contracts\Queue\QueueBus;
 use Illuminate\Contracts\Bus\Dispatcher;

@@ -13,7 +13,7 @@ use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
-use Infrastructure\Queue\RedisQueueDeduplicator;
+use Infrastructure\Redis\Queue\RedisQueueDeduplicator;
 use Tests\TestCase;
 
 class SearchIndexQueueingTest extends TestCase

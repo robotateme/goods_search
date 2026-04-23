@@ -9,6 +9,7 @@ use Domain\Product\Entity\Product;
 use Domain\Product\Search\ProductPage;
 use Domain\Product\Search\ProductSearchCriteria;
 use Domain\Product\Search\ProductSort;
+use Infrastructure\Database\Search\DatabaseProductSearch;
 use Meilisearch\Client;
 
 final readonly class MeilisearchProductSearch implements ProductSearch

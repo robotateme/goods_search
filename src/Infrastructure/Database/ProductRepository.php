@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Infrastructure\Persistence;
+namespace Infrastructure\Database;
 
 use Application\Contracts\Repositories\ProductRepositoryInterface;
 use App\Models\Product as ProductModel;

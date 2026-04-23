@@ -2,9 +2,10 @@
 declare(strict_types=1);
 
 
-namespace Infrastructure\Search;
+namespace Infrastructure\Database\Search;
 
 use Application\Contracts\Search\ProductSearchIndexer;
+use Infrastructure\Search\ProductSearchCacheVersionManager;
 
 final class DatabaseProductSearchIndexer implements ProductSearchIndexer
 {

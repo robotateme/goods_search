@@ -6,8 +6,8 @@ namespace Tests\Feature;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
-use Infrastructure\RateLimit\RedisSlidingWindowRateLimiter;
-use Infrastructure\Support\ScriptResolver;
+use Infrastructure\Redis\RateLimit\RedisSlidingWindowRateLimiter;
+use Infrastructure\Redis\ScriptResolver;
 use Tests\TestCase;
 
 class RedisSlidingWindowRateLimitTest extends TestCase

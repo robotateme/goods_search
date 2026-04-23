@@ -5,7 +5,7 @@ namespace Tests\Unit\Infrastructure\Queue;
 
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Collection;
-use Infrastructure\Queue\LaravelQueueBus;
+use Infrastructure\Ports\Queue\LaravelQueueBus;
 use PHPUnit\Framework\TestCase;
 
 class LaravelQueueBusTest extends TestCase

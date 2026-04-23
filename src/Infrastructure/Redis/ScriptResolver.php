@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace Infrastructure\Support;
+namespace Infrastructure\Redis;
 
 use InvalidArgumentException;
 
 final readonly class ScriptResolver
 {
     public function __construct(
-        private string $basePath = __DIR__.'/../Scripts',
+        private string $basePath = __DIR__.'/Scripts',
     ) {
     }
 

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Infrastructure\Search;
+namespace Infrastructure\Database\Search;
 
 use Application\Contracts\Search\ProductSearch;
 use App\Models\Product as ProductModel;
@@ -9,8 +9,8 @@ use Domain\Product\Search\ProductPage;
 use Domain\Product\Search\ProductSearchCriteria;
 use Domain\Product\ValueObject\Page;
 use Domain\Product\ValueObject\PerPage;
-use Infrastructure\Persistence\ProductModelMapper;
-use Infrastructure\Persistence\ProductSearchQueryAdapter;
+use Infrastructure\Database\ProductModelMapper;
+use Infrastructure\Database\ProductSearchQueryAdapter;
 
 final readonly class DatabaseProductSearch implements ProductSearch
 {

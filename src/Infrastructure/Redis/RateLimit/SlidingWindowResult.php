@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Infrastructure\RateLimit;
+namespace Infrastructure\Redis\RateLimit;
 
 final readonly class SlidingWindowResult
 {

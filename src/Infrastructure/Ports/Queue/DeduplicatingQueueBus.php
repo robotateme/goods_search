@@ -1,10 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Infrastructure\Queue;
+namespace Infrastructure\Ports\Queue;
 
 use App\Jobs\IndexProductInSearchJob;
 use Application\Contracts\Queue\QueueBus;
+use Infrastructure\Redis\Queue\RedisQueueDeduplicator;
 
 final readonly class DeduplicatingQueueBus implements QueueBus
 {
