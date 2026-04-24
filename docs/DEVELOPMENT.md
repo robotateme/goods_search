@@ -123,9 +123,11 @@ Laravel отдает спецификацию по адресам:
 Индексация поиска устроена так:
 
 - `src/Application/Commands` содержит application-команды
+- `src/Application/Contracts/Queue/QueuedCommand.php` ограничивает очередь queued-командами
 - `src/Application/Handlers` содержит handlers этих команд
 - `app/Jobs` содержит thin wrappers для Laravel queue
 - `src/Infrastructure/Ports/Queue` содержит адаптеры очереди и mapper команд в jobs
+- `catalog:seed` вызывает application-handler, а не `Database\Seeder` напрямую
 
 Это позволяет вызывать одни и те же use case из observer, console command и queue job без смешивания прикладной логики с Laravel queue API.
 

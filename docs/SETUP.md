@@ -155,6 +155,7 @@ MEILISEARCH_HOST=http://meilisearch:7700
 - [CategoryFactory.php](../database/factories/CategoryFactory.php)
 - [ProductFactory.php](../database/factories/ProductFactory.php)
 - [CatalogSeeder.php](../database/seeders/CatalogSeeder.php)
+- [Infrastructure\\Database\\CatalogSeeder.php](../src/Infrastructure/Database/CatalogSeeder.php)
 
 Базовое сидирование:
 
@@ -177,6 +178,8 @@ MEILISEARCH_HOST=http://meilisearch:7700
 ```
 
 Seeder отключает model events, чтобы не создавать тысячи отдельных jobs. Поэтому для полнотекстового индекса после сидирования используется отдельный импорт.
+
+Команда `catalog:seed` вызывает application-handler, а фактическое наполнение каталога выполняется инфраструктурным сервисом сидирования.
 
 ## Docker Services
 

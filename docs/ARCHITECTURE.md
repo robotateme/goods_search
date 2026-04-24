@@ -58,8 +58,8 @@ OpenAPI описан рядом с HTTP-кодом:
 - сортировка: [ProductSort.php](../src/Domain/Product/Search/ProductSort.php)
 - страница результата: [ProductPage.php](../src/Domain/Product/Search/ProductPage.php)
 - запрос и обработчик: [SearchProductsQuery.php](../src/Application/Queries/SearchProductsQuery.php), [SearchProductsQueryFactory.php](../src/Application/Queries/SearchProductsQueryFactory.php), [SearchProductsHandler.php](../src/Application/Handlers/SearchProductsHandler.php)
-- команды индексации и их обработчики: [IndexProductInSearchCommand.php](../src/Application/Commands/IndexProductInSearchCommand.php), [RemoveProductInSearchCommand.php](../src/Application/Commands/RemoveProductInSearchCommand.php), [ImportProductsToSearchCommand.php](../src/Application/Commands/ImportProductsToSearchCommand.php), [SyncProductSearchSettingsCommand.php](../src/Application/Commands/SyncProductSearchSettingsCommand.php), [IndexProductInSearchHandler.php](../src/Application/Handlers/IndexProductInSearchHandler.php), [RemoveProductInSearchHandler.php](../src/Application/Handlers/RemoveProductInSearchHandler.php), [ImportProductsToSearchHandler.php](../src/Application/Handlers/ImportProductsToSearchHandler.php), [SyncProductSearchSettingsHandler.php](../src/Application/Handlers/SyncProductSearchSettingsHandler.php)
-- контракты: [QueueBus.php](../src/Application/Contracts/Queue/QueueBus.php), [ProductSearch.php](../src/Application/Contracts/Search/ProductSearch.php), [ProductSearchIndexer.php](../src/Application/Contracts/Search/ProductSearchIndexer.php), [ProductRepositoryInterface.php](../src/Application/Contracts/Repositories/ProductRepositoryInterface.php)
+- команды и обработчики: [IndexProductInSearchCommand.php](../src/Application/Commands/IndexProductInSearchCommand.php), [RemoveProductInSearchCommand.php](../src/Application/Commands/RemoveProductInSearchCommand.php), [ImportProductsToSearchCommand.php](../src/Application/Commands/ImportProductsToSearchCommand.php), [SyncProductSearchSettingsCommand.php](../src/Application/Commands/SyncProductSearchSettingsCommand.php), [SeedCatalogCommand.php](../src/Application/Commands/SeedCatalogCommand.php), [IndexProductInSearchHandler.php](../src/Application/Handlers/IndexProductInSearchHandler.php), [RemoveProductInSearchHandler.php](../src/Application/Handlers/RemoveProductInSearchHandler.php), [ImportProductsToSearchHandler.php](../src/Application/Handlers/ImportProductsToSearchHandler.php), [SyncProductSearchSettingsHandler.php](../src/Application/Handlers/SyncProductSearchSettingsHandler.php), [SeedCatalogHandler.php](../src/Application/Handlers/SeedCatalogHandler.php)
+- контракты: [QueueBus.php](../src/Application/Contracts/Queue/QueueBus.php), [QueuedCommand.php](../src/Application/Contracts/Queue/QueuedCommand.php), [CatalogSeeder.php](../src/Application/Contracts/Catalog/CatalogSeeder.php), [ProductSearch.php](../src/Application/Contracts/Search/ProductSearch.php), [ProductSearchIndexer.php](../src/Application/Contracts/Search/ProductSearchIndexer.php), [ProductRepositoryInterface.php](../src/Application/Contracts/Repositories/ProductRepositoryInterface.php)
 - HTTP-ответы: [ProductResponseData.php](../app/Http/Responses/ProductResponseData.php), [ProductPageResponseData.php](../app/Http/Responses/ProductPageResponseData.php)
 - поиск: [DatabaseProductSearch.php](../src/Infrastructure/Database/Search/DatabaseProductSearch.php), [MeilisearchProductSearch.php](../src/Infrastructure/Search/MeilisearchProductSearch.php)
 - индексирование: [DatabaseProductSearchIndexer.php](../src/Infrastructure/Database/Search/DatabaseProductSearchIndexer.php), [MeilisearchProductSearchIndexer.php](../src/Infrastructure/Search/MeilisearchProductSearchIndexer.php)
@@ -69,16 +69,16 @@ OpenAPI описан рядом с HTTP-кодом:
 
 Очереди и индексация:
 
-- application-команды: [IndexProductInSearchCommand.php](../src/Application/Commands/IndexProductInSearchCommand.php), [RemoveProductInSearchCommand.php](../src/Application/Commands/RemoveProductInSearchCommand.php), [ImportProductsToSearchCommand.php](../src/Application/Commands/ImportProductsToSearchCommand.php), [SyncProductSearchSettingsCommand.php](../src/Application/Commands/SyncProductSearchSettingsCommand.php)
+- application queued-команды: [IndexProductInSearchCommand.php](../src/Application/Commands/IndexProductInSearchCommand.php), [RemoveProductInSearchCommand.php](../src/Application/Commands/RemoveProductInSearchCommand.php), [ImportProductsToSearchCommand.php](../src/Application/Commands/ImportProductsToSearchCommand.php), [SyncProductSearchSettingsCommand.php](../src/Application/Commands/SyncProductSearchSettingsCommand.php)
 - application handlers: [IndexProductInSearchHandler.php](../src/Application/Handlers/IndexProductInSearchHandler.php), [RemoveProductInSearchHandler.php](../src/Application/Handlers/RemoveProductInSearchHandler.php), [ImportProductsToSearchHandler.php](../src/Application/Handlers/ImportProductsToSearchHandler.php), [SyncProductSearchSettingsHandler.php](../src/Application/Handlers/SyncProductSearchSettingsHandler.php)
-- интерфейс очереди: [QueueBus.php](../src/Application/Contracts/Queue/QueueBus.php)
+- интерфейсы очереди: [QueueBus.php](../src/Application/Contracts/Queue/QueueBus.php), [QueuedCommand.php](../src/Application/Contracts/Queue/QueuedCommand.php)
 - реализация: [LaravelQueueBus.php](../src/Infrastructure/Ports/Queue/LaravelQueueBus.php), [DeduplicatingQueueBus.php](../src/Infrastructure/Ports/Queue/DeduplicatingQueueBus.php), [QueueCommandJobMapper.php](../src/Infrastructure/Ports/Queue/QueueCommandJobMapper.php), [CommandDeduplicationKeyResolver.php](../src/Infrastructure/Ports/Queue/CommandDeduplicationKeyResolver.php), [RedisQueueDeduplicator.php](../src/Infrastructure/Redis/Queue/RedisQueueDeduplicator.php)
 - маппинг application-команд в Laravel jobs: [LaravelQueueCommandMapper.php](../app/Jobs/LaravelQueueCommandMapper.php)
 - jobs как thin wrappers: [IndexProductInSearchJob.php](../app/Jobs/IndexProductInSearchJob.php), [RemoveProductFromSearchJob.php](../app/Jobs/RemoveProductFromSearchJob.php), [SyncProductSearchSettingsJob.php](../app/Jobs/SyncProductSearchSettingsJob.php), [ImportProductsToSearchJob.php](../app/Jobs/ImportProductsToSearchJob.php)
 
 По папкам:
 
-- `app/` — контроллеры, jobs, service providers и Eloquent-модели инфраструктуры
+- `app/` — контроллеры, jobs и service providers
 - `src/Domain` — доменные классы поиска
 - `src/Application` — query, commands, handlers и application-level контракты
 - `src/Infrastructure/Database` — всё, что относится к БД и поиску по БД
@@ -97,7 +97,7 @@ OpenAPI описан рядом с HTTP-кодом:
 
 Преобразование Laravel-модели в объект поиска вынесено отдельно, чтобы поиск не зависел от Eloquent напрямую.
 
-Laravel queue не используется как место для прикладной логики: observer и console command отправляют application-команды, а преобразование этих команд в конкретные Laravel jobs остается на стороне infrastructure adapter.
+Laravel queue не используется как место для прикладной логики: observer и console command отправляют application queued-команды, а преобразование этих команд в конкретные Laravel jobs остается на стороне infrastructure adapter.
 
 ## Провайдеры
 
