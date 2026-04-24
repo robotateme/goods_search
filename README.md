@@ -70,7 +70,7 @@ make help
 - поиск по `q` через Meilisearch
 - поиск через базу, если индекс не нужен
 - application-команды для индексации и отдельный mapper команд в Laravel jobs
-- Eloquent-модели лежат в `app/Infrastructure/Database/Eloquent`
+- Eloquent-модели лежат в `src/Infrastructure/Database/Eloquent`
 - кэш поиска с сохранением `ProductPage` в виде обычных данных
 - явные SQL-индексы под основные фильтры и сортировки
 

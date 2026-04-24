@@ -89,7 +89,7 @@ make help
 Новые Eloquent-модели по умолчанию генерируются в:
 
 ```text
-app/Infrastructure/Database/Eloquent
+src/Infrastructure/Database/Eloquent
 ```
 
 То есть `php artisan make:model Product` создает модель в инфраструктурном пути, а не в `app/Models`.
