@@ -8,6 +8,7 @@ use Application\Contracts\Catalog\CatalogSeeder as CatalogSeederContract;
 use Faker\Generator;
 use Infrastructure\Database\Eloquent\Category;
 use Infrastructure\Database\Eloquent\Product;
+use Override;
 
 final class CatalogSeeder implements CatalogSeederContract
 {
@@ -35,6 +36,7 @@ final class CatalogSeeder implements CatalogSeederContract
         'Pro',
     ];
 
+    #[Override]
     public function seed(int $productsCount, int $categoriesCount): void
     {
         Category::factory()

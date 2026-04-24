@@ -19,16 +19,19 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->app->extend(LaravelModelMakeCommand::class, fn ($command, $app) => new class($app['files']) extends LaravelModelMakeCommand
             {
+                #[Override]
                 protected function rootNamespace(): string
                 {
                     return 'Infrastructure\\';
                 }
 
+                #[Override]
                 protected function getDefaultNamespace($rootNamespace): string
                 {
                     return $rootNamespace.'\\Database\\Eloquent';
                 }
 
+                #[Override]
                 protected function getPath($name): string
                 {
                     $relativePath = Str::replaceFirst($this->rootNamespace(), '', $name);
