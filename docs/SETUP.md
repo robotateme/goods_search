@@ -86,6 +86,14 @@ curl "http://localhost/api/products?page=1&per_page=20"
 make help
 ```
 
+Новые Eloquent-модели по умолчанию генерируются в:
+
+```text
+app/Infrastructure/Database/Eloquent
+```
+
+То есть `php artisan make:model Product` создает модель в инфраструктурном пути, а не в `app/Models`.
+
 Если Docker не нужен, можно поднять PostgreSQL, Redis и Meilisearch отдельно, настроить `.env` и выполнить:
 
 ```bash
@@ -137,6 +145,8 @@ MEILISEARCH_HOST=http://meilisearch:7700
 ```
 
 Эти команды ставят jobs в очередь. Автоиндексация после `saved/deleted` тоже идёт через очередь.
+
+Сама прикладная логика индексации живет в `src/Application`, а Laravel jobs остаются только транспортным слоем очереди.
 
 ## Фабрики и сиды
 

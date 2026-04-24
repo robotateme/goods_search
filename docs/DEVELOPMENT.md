@@ -118,6 +118,17 @@ Laravel отдает спецификацию по адресам:
 
 В тестах используется `SEARCH_DRIVER=database`, поэтому живой Meilisearch не нужен.
 
+## Слои и очередь
+
+Индексация поиска устроена так:
+
+- `src/Application/Commands` содержит application-команды
+- `src/Application/Handlers` содержит handlers этих команд
+- `app/Jobs` содержит thin wrappers для Laravel queue
+- `src/Infrastructure/Ports/Queue` содержит адаптеры очереди и mapper команд в jobs
+
+Это позволяет вызывать одни и те же use case из observer, console command и queue job без смешивания прикладной логики с Laravel queue API.
+
 ## Полезные команды
 
 ```bash

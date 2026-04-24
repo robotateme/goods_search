@@ -58,27 +58,32 @@ OpenAPI описан рядом с HTTP-кодом:
 - сортировка: [ProductSort.php](../src/Domain/Product/Search/ProductSort.php)
 - страница результата: [ProductPage.php](../src/Domain/Product/Search/ProductPage.php)
 - запрос и обработчик: [SearchProductsQuery.php](../src/Application/Queries/SearchProductsQuery.php), [SearchProductsQueryFactory.php](../src/Application/Queries/SearchProductsQueryFactory.php), [SearchProductsHandler.php](../src/Application/Handlers/SearchProductsHandler.php)
+- команды индексации и их обработчики: [IndexProductInSearchCommand.php](../src/Application/Commands/IndexProductInSearchCommand.php), [RemoveProductInSearchCommand.php](../src/Application/Commands/RemoveProductInSearchCommand.php), [ImportProductsToSearchCommand.php](../src/Application/Commands/ImportProductsToSearchCommand.php), [SyncProductSearchSettingsCommand.php](../src/Application/Commands/SyncProductSearchSettingsCommand.php), [IndexProductInSearchHandler.php](../src/Application/Handlers/IndexProductInSearchHandler.php), [RemoveProductInSearchHandler.php](../src/Application/Handlers/RemoveProductInSearchHandler.php), [ImportProductsToSearchHandler.php](../src/Application/Handlers/ImportProductsToSearchHandler.php), [SyncProductSearchSettingsHandler.php](../src/Application/Handlers/SyncProductSearchSettingsHandler.php)
+- контракты: [QueueBus.php](../src/Application/Contracts/Queue/QueueBus.php), [DeduplicatedCommand.php](../src/Application/Contracts/Queue/DeduplicatedCommand.php), [ProductSearch.php](../src/Application/Contracts/Search/ProductSearch.php), [ProductSearchIndexer.php](../src/Application/Contracts/Search/ProductSearchIndexer.php), [ProductRepositoryInterface.php](../src/Application/Contracts/Repositories/ProductRepositoryInterface.php)
 - HTTP-ответы: [ProductResponseData.php](../app/Http/Responses/ProductResponseData.php), [ProductPageResponseData.php](../app/Http/Responses/ProductPageResponseData.php)
-- поиск: [ProductSearch.php](../src/Application/Contracts/Search/ProductSearch.php), [DatabaseProductSearch.php](../src/Infrastructure/Database/Search/DatabaseProductSearch.php), [MeilisearchProductSearch.php](../src/Infrastructure/Search/MeilisearchProductSearch.php)
-- индексирование: [ProductSearchIndexer.php](../src/Application/Contracts/Search/ProductSearchIndexer.php), [DatabaseProductSearchIndexer.php](../src/Infrastructure/Database/Search/DatabaseProductSearchIndexer.php), [MeilisearchProductSearchIndexer.php](../src/Infrastructure/Search/MeilisearchProductSearchIndexer.php)
-- работа с БД: [ProductRepositoryInterface.php](../src/Application/Contracts/Repositories/ProductRepositoryInterface.php), [ProductSearchQueryAdapter.php](../src/Infrastructure/Database/ProductSearchQueryAdapter.php), [ProductModelMapper.php](../src/Infrastructure/Database/ProductModelMapper.php), [ProductRepository.php](../src/Infrastructure/Database/ProductRepository.php)
+- поиск: [DatabaseProductSearch.php](../src/Infrastructure/Database/Search/DatabaseProductSearch.php), [MeilisearchProductSearch.php](../src/Infrastructure/Search/MeilisearchProductSearch.php)
+- индексирование: [DatabaseProductSearchIndexer.php](../src/Infrastructure/Database/Search/DatabaseProductSearchIndexer.php), [MeilisearchProductSearchIndexer.php](../src/Infrastructure/Search/MeilisearchProductSearchIndexer.php)
+- работа с БД: [ProductSearchQueryAdapter.php](../src/Infrastructure/Database/ProductSearchQueryAdapter.php), [ProductModelMapper.php](../src/Infrastructure/Database/ProductModelMapper.php), [ProductRepository.php](../src/Infrastructure/Database/ProductRepository.php), [Product.php](../app/Infrastructure/Database/Eloquent/Product.php), [Category.php](../app/Infrastructure/Database/Eloquent/Category.php), [User.php](../app/Infrastructure/Database/Eloquent/User.php)
 - кэш поиска: [CachedProductSearch.php](../src/Infrastructure/Search/CachedProductSearch.php), [ProductPageCacheSerializer.php](../src/Infrastructure/Search/ProductPageCacheSerializer.php)
 - остальное: [ProductSearchDocumentMapper.php](../src/Infrastructure/Search/ProductSearchDocumentMapper.php), [ProductObserver.php](../src/Infrastructure/Search/ProductObserver.php), [src/Infrastructure/Redis/Scripts](../src/Infrastructure/Redis/Scripts), [ScriptResolver.php](../src/Infrastructure/Redis/ScriptResolver.php)
 
-Очереди:
+Очереди и индексация:
 
-- интерфейс: [QueueBus.php](../src/Application/Contracts/Queue/QueueBus.php)
-- реализация: [LaravelQueueBus.php](../src/Infrastructure/Ports/Queue/LaravelQueueBus.php), [DeduplicatingQueueBus.php](../src/Infrastructure/Ports/Queue/DeduplicatingQueueBus.php), [RedisQueueDeduplicator.php](../src/Infrastructure/Redis/Queue/RedisQueueDeduplicator.php)
-- jobs: [IndexProductInSearchJob.php](../app/Jobs/IndexProductInSearchJob.php), [RemoveProductFromSearchJob.php](../app/Jobs/RemoveProductFromSearchJob.php), [SyncProductSearchSettingsJob.php](../app/Jobs/SyncProductSearchSettingsJob.php), [ImportProductsToSearchJob.php](../app/Jobs/ImportProductsToSearchJob.php)
+- application-команды: [IndexProductInSearchCommand.php](../src/Application/Commands/IndexProductInSearchCommand.php), [RemoveProductInSearchCommand.php](../src/Application/Commands/RemoveProductInSearchCommand.php), [ImportProductsToSearchCommand.php](../src/Application/Commands/ImportProductsToSearchCommand.php), [SyncProductSearchSettingsCommand.php](../src/Application/Commands/SyncProductSearchSettingsCommand.php)
+- application handlers: [IndexProductInSearchHandler.php](../src/Application/Handlers/IndexProductInSearchHandler.php), [RemoveProductInSearchHandler.php](../src/Application/Handlers/RemoveProductInSearchHandler.php), [ImportProductsToSearchHandler.php](../src/Application/Handlers/ImportProductsToSearchHandler.php), [SyncProductSearchSettingsHandler.php](../src/Application/Handlers/SyncProductSearchSettingsHandler.php)
+- интерфейс очереди: [QueueBus.php](../src/Application/Contracts/Queue/QueueBus.php)
+- реализация: [LaravelQueueBus.php](../src/Infrastructure/Ports/Queue/LaravelQueueBus.php), [DeduplicatingQueueBus.php](../src/Infrastructure/Ports/Queue/DeduplicatingQueueBus.php), [QueueCommandJobMapper.php](../src/Infrastructure/Ports/Queue/QueueCommandJobMapper.php), [RedisQueueDeduplicator.php](../src/Infrastructure/Redis/Queue/RedisQueueDeduplicator.php)
+- маппинг application-команд в Laravel jobs: [LaravelQueueCommandMapper.php](../app/Jobs/LaravelQueueCommandMapper.php)
+- jobs как thin wrappers: [IndexProductInSearchJob.php](../app/Jobs/IndexProductInSearchJob.php), [RemoveProductFromSearchJob.php](../app/Jobs/RemoveProductFromSearchJob.php), [SyncProductSearchSettingsJob.php](../app/Jobs/SyncProductSearchSettingsJob.php), [ImportProductsToSearchJob.php](../app/Jobs/ImportProductsToSearchJob.php)
 
 По папкам:
 
-- `app/` — контроллеры, jobs, модели, service providers
+- `app/` — контроллеры, jobs, service providers и Eloquent-модели инфраструктуры
 - `src/Domain` — доменные классы поиска
-- `src/Application` — query, handler и интерфейсы
+- `src/Application` — query, commands, handlers и application-level контракты
 - `src/Infrastructure/Database` — всё, что относится к БД и поиску по БД
 - `src/Infrastructure/Redis` — Redis rate limit, queue deduplication и lua-скрипты
-- `src/Infrastructure/Ports` — адаптеры инфраструктуры для application ports
+- `src/Infrastructure/Ports` — адаптеры инфраструктуры для application ports и transport mapping
 - `src/Infrastructure/Search` — кэш поиска, observer и Meilisearch-специфичные части
 
 ## Почему так
@@ -92,10 +97,12 @@ OpenAPI описан рядом с HTTP-кодом:
 
 Преобразование Laravel-модели в объект поиска вынесено отдельно, чтобы поиск не зависел от Eloquent напрямую.
 
+Laravel queue не используется как место для прикладной логики: observer и console command отправляют application-команды, а преобразование этих команд в конкретные Laravel jobs остается на стороне infrastructure adapter.
+
 ## Провайдеры
 
 - [AppServiceProvider.php](../app/Providers/AppServiceProvider.php) — observer
 - [RepositoryServiceProvider.php](../app/Providers/RepositoryServiceProvider.php) — репозитории
-- [PortServiceProvider.php](../app/Providers/PortServiceProvider.php) — интерфейсы и адаптеры
+- [PortServiceProvider.php](../app/Providers/PortServiceProvider.php) — application-контракты и инфраструктурные адаптеры
 
 Контроллер только принимает параметры, вызывает handler и возвращает ответ.
