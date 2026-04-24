@@ -8,6 +8,7 @@ use Application\Commands\ImportProductsToSearchCommand;
 use Application\Commands\IndexProductInSearchCommand;
 use Application\Commands\RemoveProductInSearchCommand;
 use Application\Commands\SyncProductSearchSettingsCommand;
+use Application\Contracts\Queue\QueuedCommand;
 use Infrastructure\Ports\Queue\QueueCommandJobMapper;
 use InvalidArgumentException;
 use Override;
@@ -15,7 +16,7 @@ use Override;
 final readonly class LaravelQueueCommandMapper implements QueueCommandJobMapper
 {
     #[Override]
-    public function map(object $command): object
+    public function map(QueuedCommand $command): object
     {
         return match (true) {
             $command instanceof IndexProductInSearchCommand => new IndexProductInSearchJob($command->productId),

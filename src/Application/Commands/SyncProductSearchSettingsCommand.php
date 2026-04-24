@@ -4,4 +4,6 @@ declare(strict_types=1);
 
 namespace Application\Commands;
 
-final readonly class SyncProductSearchSettingsCommand {}
+use Application\Contracts\Queue\QueuedCommand;
+
+final readonly class SyncProductSearchSettingsCommand implements QueuedCommand {}

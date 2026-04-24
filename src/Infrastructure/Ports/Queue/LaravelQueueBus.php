@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Infrastructure\Ports\Queue;
 
 use Application\Contracts\Queue\QueueBus;
+use Application\Contracts\Queue\QueuedCommand;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Override;
 
@@ -16,13 +17,13 @@ final readonly class LaravelQueueBus implements QueueBus
     ) {}
 
     #[Override]
-    public function dispatch(object $command): mixed
+    public function dispatch(QueuedCommand $command): mixed
     {
         return $this->dispatcher->dispatch($this->jobMapper->map($command));
     }
 
     #[Override]
-    public function dispatchSync(object $command): mixed
+    public function dispatchSync(QueuedCommand $command): mixed
     {
         return $this->dispatcher->dispatchSync($this->jobMapper->map($command));
     }

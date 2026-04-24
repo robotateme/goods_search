@@ -6,7 +6,7 @@ namespace Application\Contracts\Queue;
 
 interface QueueBus
 {
-    public function dispatch(object $command): mixed;
+    public function dispatch(QueuedCommand $command): mixed;
 
-    public function dispatchSync(object $command): mixed;
+    public function dispatchSync(QueuedCommand $command): mixed;
 }

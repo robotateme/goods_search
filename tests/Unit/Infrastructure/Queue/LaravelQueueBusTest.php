@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Infrastructure\Queue;
 
+use Application\Contracts\Queue\QueuedCommand;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Collection;
 use Infrastructure\Ports\Queue\LaravelQueueBus;
@@ -16,7 +17,7 @@ class LaravelQueueBusTest extends TestCase
     // Проверяет, что QueueBus делегирует асинхронную отправку диспетчеру Laravel.
     public function test_it_dispatches_commands(): void
     {
-        $command = new class {};
+        $command = new class implements QueuedCommand {};
         $job = new class {};
         $dispatcher = new InMemoryDispatcher;
         $mapper = new InMemoryQueueCommandJobMapper($job);
@@ -31,7 +32,7 @@ class LaravelQueueBusTest extends TestCase
     // Проверяет, что QueueBus делегирует синхронную отправку диспетчеру Laravel.
     public function test_it_dispatches_commands_synchronously(): void
     {
-        $command = new class {};
+        $command = new class implements QueuedCommand {};
         $job = new class {};
         $dispatcher = new InMemoryDispatcher;
         $mapper = new InMemoryQueueCommandJobMapper($job);
@@ -51,7 +52,7 @@ final readonly class InMemoryQueueCommandJobMapper implements QueueCommandJobMap
     ) {}
 
     #[Override]
-    public function map(object $command): object
+    public function map(QueuedCommand $command): object
     {
         return $this->job;
     }

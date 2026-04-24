@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Infrastructure\Ports\Queue;
 
 use Application\Contracts\Queue\QueueBus;
+use Application\Contracts\Queue\QueuedCommand;
 use Infrastructure\Redis\Queue\RedisQueueDeduplicator;
 use Override;
 
@@ -17,7 +18,7 @@ final readonly class DeduplicatingQueueBus implements QueueBus
     ) {}
 
     #[Override]
-    public function dispatch(object $command): mixed
+    public function dispatch(QueuedCommand $command): mixed
     {
         if (! $this->shouldDispatch($command)) {
             return null;
@@ -27,12 +28,12 @@ final readonly class DeduplicatingQueueBus implements QueueBus
     }
 
     #[Override]
-    public function dispatchSync(object $command): mixed
+    public function dispatchSync(QueuedCommand $command): mixed
     {
         return $this->inner->dispatchSync($command);
     }
 
-    private function shouldDispatch(object $command): bool
+    private function shouldDispatch(QueuedCommand $command): bool
     {
         if ((string) config('queue.default', 'sync') !== 'redis') {
             return true;
