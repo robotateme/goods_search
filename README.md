@@ -17,7 +17,7 @@
 
 ## Стек
 
-- PHP 8.3+
+- PHP 8.5+
 - Laravel 13
 - PostgreSQL
 - Redis

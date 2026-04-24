@@ -7,7 +7,7 @@
 ### Системные требования
 
 - Linux-сервер
-- PHP `8.3+`
+- PHP `8.5+`
 - Composer `2+`
 - Node.js `20+`
 - npm `10+`
@@ -161,7 +161,7 @@ php artisan schedule:work
 
 ### Короткий чек-лист
 
-- PHP `8.3+` с `pdo_pgsql` и `redis`
+- PHP `8.5+` с `pdo_pgsql` и `redis`
 - PostgreSQL поднят и доступен
 - Redis поднят и доступен
 - Meilisearch поднят и доступен
