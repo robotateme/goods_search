@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Jobs\LaravelQueueCommandMapper;
 use Application\Contracts\Queue\QueueBus;
 use Application\Contracts\Search\ProductSearch;
 use Application\Contracts\Search\ProductSearchIndexer;
@@ -15,6 +16,7 @@ use Infrastructure\Database\Search\DatabaseProductSearch;
 use Infrastructure\Database\Search\DatabaseProductSearchIndexer;
 use Infrastructure\Ports\Queue\DeduplicatingQueueBus;
 use Infrastructure\Ports\Queue\LaravelQueueBus;
+use Infrastructure\Ports\Queue\QueueCommandJobMapper;
 use Infrastructure\Redis\Queue\RedisQueueDeduplicator;
 use Infrastructure\Redis\ScriptResolver;
 use Infrastructure\Search\CachedProductSearch;
@@ -30,6 +32,7 @@ class PortServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
+        $this->app->singleton(QueueCommandJobMapper::class, LaravelQueueCommandMapper::class);
         $this->app->singleton(RedisQueueDeduplicator::class, fn () => new RedisQueueDeduplicator(
             $this->app->make(RedisFactory::class),
             $this->app->make(ScriptResolver::class),

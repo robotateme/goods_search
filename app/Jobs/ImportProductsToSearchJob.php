@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use Application\Contracts\Search\ProductSearchIndexer;
+use Application\Commands\ImportProductsToSearchCommand;
+use Application\Handlers\ImportProductsToSearchHandler;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -12,8 +13,8 @@ final class ImportProductsToSearchJob implements ShouldQueue
 {
     use Queueable;
 
-    public function handle(ProductSearchIndexer $indexer): void
+    public function handle(ImportProductsToSearchHandler $handler): void
     {
-        $indexer->importAll();
+        $handler->handle(new ImportProductsToSearchCommand());
     }
 }

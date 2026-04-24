@@ -8,7 +8,8 @@ use App\Jobs\ImportProductsToSearchJob;
 use App\Jobs\IndexProductInSearchJob;
 use App\Jobs\RemoveProductFromSearchJob;
 use App\Jobs\SyncProductSearchSettingsJob;
-use App\Models\Product;
+use App\Infrastructure\Database\Eloquent\Product;
+use Application\Commands\IndexProductInSearchCommand;
 use Application\Contracts\Queue\QueueBus;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
@@ -104,8 +105,8 @@ class SearchIndexQueueingTest extends TestCase
         $this->app->forgetInstance(QueueBus::class);
         $queueBus = $this->app->make(QueueBus::class);
 
-        $queueBus->dispatch(new IndexProductInSearchJob($product->id));
-        $queueBus->dispatch(new IndexProductInSearchJob($product->id));
+        $queueBus->dispatch(new IndexProductInSearchCommand($product->id));
+        $queueBus->dispatch(new IndexProductInSearchCommand($product->id));
 
         Bus::assertDispatchedTimes(IndexProductInSearchJob::class, 1);
     }

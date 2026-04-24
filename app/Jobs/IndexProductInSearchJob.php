@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use Application\Contracts\Search\ProductSearchIndexer;
+use Application\Commands\IndexProductInSearchCommand;
+use Application\Handlers\IndexProductInSearchHandler;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -16,8 +17,8 @@ final class IndexProductInSearchJob implements ShouldQueue
         public readonly int $productId,
     ) {}
 
-    public function handle(ProductSearchIndexer $indexer): void
+    public function handle(IndexProductInSearchHandler $handler): void
     {
-        $indexer->index($this->productId);
+        $handler->handle(new IndexProductInSearchCommand($this->productId));
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Database\Search;
 
-use App\Models\Product as ProductModel;
+use App\Infrastructure\Database\Eloquent\Product as ProductModel;
 use Application\Contracts\Search\ProductSearch;
 use Domain\Product\Search\ProductPage;
 use Domain\Product\Search\ProductSearchCriteria;

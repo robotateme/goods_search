@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace App\Infrastructure\Database\Eloquent;
 
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -58,5 +58,10 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    protected static function newFactory(): ProductFactory
+    {
+        return ProductFactory::new();
     }
 }

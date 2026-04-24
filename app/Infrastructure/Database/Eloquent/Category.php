@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace App\Infrastructure\Database\Eloquent;
 
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,5 +30,10 @@ class Category extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    protected static function newFactory(): CategoryFactory
+    {
+        return CategoryFactory::new();
     }
 }

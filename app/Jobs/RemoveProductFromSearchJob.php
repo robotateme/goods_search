@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use Application\Contracts\Search\ProductSearchIndexer;
+use Application\Commands\RemoveProductInSearchCommand;
+use Application\Handlers\RemoveProductInSearchHandler;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -16,8 +17,8 @@ final class RemoveProductFromSearchJob implements ShouldQueue
         public readonly int $productId,
     ) {}
 
-    public function handle(ProductSearchIndexer $indexer): void
+    public function handle(RemoveProductInSearchHandler $handler): void
     {
-        $indexer->remove($this->productId);
+        $handler->handle(new RemoveProductInSearchCommand($this->productId));
     }
 }

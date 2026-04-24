@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Ports\Queue;
 
-use App\Jobs\IndexProductInSearchJob;
+use Application\Contracts\Queue\DeduplicatedCommand;
 use Application\Contracts\Queue\QueueBus;
 use Infrastructure\Redis\Queue\RedisQueueDeduplicator;
 use Override;
@@ -38,12 +38,12 @@ final readonly class DeduplicatingQueueBus implements QueueBus
             return true;
         }
 
-        if (! $command instanceof IndexProductInSearchJob) {
+        if (! $command instanceof DeduplicatedCommand) {
             return true;
         }
 
         return $this->deduplicator->claim(
-            sprintf('queue-dedup:search:index:%d', $command->productId),
+            $command->deduplicationKey(),
             (int) config('queue.dedup.ttl_seconds', 30),
         );
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Database;
 
-use App\Models\Product as ProductModel;
+use App\Infrastructure\Database\Eloquent\Product as ProductModel;
 use Domain\Product\Search\ProductSearchCriteria;
 use Domain\Product\Search\ProductSort;
 use Illuminate\Database\Eloquent\Builder;

@@ -2,9 +2,9 @@
 declare(strict_types=1);
 
 
+use Application\Commands\ImportProductsToSearchCommand;
+use Application\Commands\SyncProductSearchSettingsCommand;
 use Application\Contracts\Queue\QueueBus;
-use App\Jobs\ImportProductsToSearchJob;
-use App\Jobs\SyncProductSearchSettingsJob;
 use Database\Seeders\CatalogSeeder;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -15,14 +15,14 @@ Artisan::command('inspire', function (): void {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('search:products:sync', function (QueueBus $queueBus): int {
-    $queueBus->dispatch(new SyncProductSearchSettingsJob());
+    $queueBus->dispatch(new SyncProductSearchSettingsCommand());
     echo 'Product search settings sync queued.'.PHP_EOL;
 
     return Command::SUCCESS;
 })->purpose('Sync product search index settings');
 
 Artisan::command('search:products:import', function (QueueBus $queueBus): int {
-    $queueBus->dispatch(new ImportProductsToSearchJob());
+    $queueBus->dispatch(new ImportProductsToSearchCommand());
     echo 'Products import queued.'.PHP_EOL;
 
     return Command::SUCCESS;

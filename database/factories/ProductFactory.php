@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\Category;
-use App\Models\Product;
+use App\Infrastructure\Database\Eloquent\Category;
+use App\Infrastructure\Database\Eloquent\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Override;
 

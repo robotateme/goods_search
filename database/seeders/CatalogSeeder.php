@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Category;
-use App\Models\Product;
+use App\Infrastructure\Database\Eloquent\Category;
+use App\Infrastructure\Database\Eloquent\Product;
 use Faker\Generator;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;

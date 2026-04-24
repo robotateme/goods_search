@@ -7,6 +7,7 @@ namespace Tests\Unit\Infrastructure\Queue;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Collection;
 use Infrastructure\Ports\Queue\LaravelQueueBus;
+use Infrastructure\Ports\Queue\QueueCommandJobMapper;
 use Override;
 use PHPUnit\Framework\TestCase;
 
@@ -16,26 +17,43 @@ class LaravelQueueBusTest extends TestCase
     public function test_it_dispatches_commands(): void
     {
         $command = new class {};
+        $job = new class {};
         $dispatcher = new InMemoryDispatcher;
+        $mapper = new InMemoryQueueCommandJobMapper($job);
         $dispatcher->dispatchResult = 'queued';
 
-        $queueBus = new LaravelQueueBus($dispatcher);
+        $queueBus = new LaravelQueueBus($dispatcher, $mapper);
 
         self::assertSame('queued', $queueBus->dispatch($command));
-        self::assertSame($command, $dispatcher->lastCommand);
+        self::assertSame($job, $dispatcher->lastCommand);
     }
 
     // Проверяет, что QueueBus делегирует синхронную отправку диспетчеру Laravel.
     public function test_it_dispatches_commands_synchronously(): void
     {
         $command = new class {};
+        $job = new class {};
         $dispatcher = new InMemoryDispatcher;
+        $mapper = new InMemoryQueueCommandJobMapper($job);
         $dispatcher->dispatchSyncResult = 'handled';
 
-        $queueBus = new LaravelQueueBus($dispatcher);
+        $queueBus = new LaravelQueueBus($dispatcher, $mapper);
 
         self::assertSame('handled', $queueBus->dispatchSync($command));
-        self::assertSame($command, $dispatcher->lastSyncCommand);
+        self::assertSame($job, $dispatcher->lastSyncCommand);
+    }
+}
+
+final readonly class InMemoryQueueCommandJobMapper implements QueueCommandJobMapper
+{
+    public function __construct(
+        private object $job,
+    ) {}
+
+    #[Override]
+    public function map(object $command): object
+    {
+        return $this->job;
     }
 }
 

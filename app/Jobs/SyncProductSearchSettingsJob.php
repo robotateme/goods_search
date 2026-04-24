@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use Application\Contracts\Search\ProductSearchIndexer;
+use Application\Commands\SyncProductSearchSettingsCommand;
+use Application\Handlers\SyncProductSearchSettingsHandler;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -12,8 +13,8 @@ final class SyncProductSearchSettingsJob implements ShouldQueue
 {
     use Queueable;
 
-    public function handle(ProductSearchIndexer $indexer): void
+    public function handle(SyncProductSearchSettingsHandler $handler): void
     {
-        $indexer->syncSettings();
+        $handler->handle(new SyncProductSearchSettingsCommand());
     }
 }
