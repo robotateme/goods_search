@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Infrastructure\Database\Eloquent\Category;
-use App\Infrastructure\Database\Eloquent\Product;
 use Faker\Generator;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Infrastructure\Database\Eloquent\Category;
+use Infrastructure\Database\Eloquent\Product;
 
 class CatalogSeeder extends Seeder
 {

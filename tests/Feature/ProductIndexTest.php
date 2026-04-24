@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Infrastructure\Database\Eloquent\Category;
-use App\Infrastructure\Database\Eloquent\Product;
+use Infrastructure\Database\Eloquent\Category;
+use Infrastructure\Database\Eloquent\Product;
 use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;

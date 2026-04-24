@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Infrastructure\Database;
 
-use App\Infrastructure\Database\Eloquent\Product as ProductModel;
 use Application\Contracts\Repositories\ProductRepositoryInterface;
 use Closure;
 use Domain\Product\Entity\Product;
+use Infrastructure\Database\Eloquent\Product as ProductModel;
 use Override;
 
 final readonly class ProductRepository implements ProductRepositoryInterface

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Infrastructure\Database;
 
-use App\Infrastructure\Database\Eloquent\Product as ProductModel;
 use Domain\Product\Entity\Product;
 use Domain\Product\ValueObject\CategoryId;
 use Domain\Product\ValueObject\Price;
 use Domain\Product\ValueObject\ProductId;
 use Domain\Product\ValueObject\Rating;
+use Infrastructure\Database\Eloquent\Product as ProductModel;
 
 final class ProductModelMapper
 {

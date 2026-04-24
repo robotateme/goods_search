@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Infrastructure\Search;
 
-use App\Infrastructure\Database\Eloquent\Product;
 use Application\Commands\IndexProductInSearchCommand;
 use Application\Commands\RemoveProductInSearchCommand;
 use Application\Contracts\Queue\QueueBus;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
+use Infrastructure\Database\Eloquent\Product;
 
 final readonly class ProductObserver implements ShouldHandleEventsAfterCommit
 {

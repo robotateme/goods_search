@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 
-use App\Infrastructure\Database\Eloquent\User;
+use Infrastructure\Database\Eloquent\User;
 
 return [
 

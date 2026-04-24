@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Infrastructure\Database;
 
-use App\Infrastructure\Database\Eloquent\Product as ProductModel;
 use Domain\Product\Search\ProductSearchCriteria;
 use Domain\Product\Search\ProductSort;
 use Illuminate\Database\Eloquent\Builder;
+use Infrastructure\Database\Eloquent\Product as ProductModel;
 
 final class ProductSearchQueryAdapter
 {
