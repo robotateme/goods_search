@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Infrastructure\Ports\Queue;
 
-use Application\Contracts\Queue\DeduplicatedCommand;
 use Application\Contracts\Queue\QueueBus;
 use Infrastructure\Redis\Queue\RedisQueueDeduplicator;
 use Override;
@@ -14,6 +13,7 @@ final readonly class DeduplicatingQueueBus implements QueueBus
     public function __construct(
         private QueueBus $inner,
         private RedisQueueDeduplicator $deduplicator,
+        private CommandDeduplicationKeyResolver $keyResolver,
     ) {}
 
     #[Override]
@@ -38,12 +38,14 @@ final readonly class DeduplicatingQueueBus implements QueueBus
             return true;
         }
 
-        if (! $command instanceof DeduplicatedCommand) {
+        $key = $this->keyResolver->resolve($command);
+
+        if ($key === null) {
             return true;
         }
 
         return $this->deduplicator->claim(
-            $command->deduplicationKey(),
+            $key,
             (int) config('queue.dedup.ttl_seconds', 30),
         );
     }

@@ -14,6 +14,7 @@ use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Support\ServiceProvider;
 use Infrastructure\Database\Search\DatabaseProductSearch;
 use Infrastructure\Database\Search\DatabaseProductSearchIndexer;
+use Infrastructure\Ports\Queue\CommandDeduplicationKeyResolver;
 use Infrastructure\Ports\Queue\DeduplicatingQueueBus;
 use Infrastructure\Ports\Queue\LaravelQueueBus;
 use Infrastructure\Ports\Queue\QueueCommandJobMapper;
@@ -38,9 +39,11 @@ class PortServiceProvider extends ServiceProvider
             $this->app->make(ScriptResolver::class),
             $this->app->make(Repository::class),
         ));
+        $this->app->singleton(CommandDeduplicationKeyResolver::class);
         $this->app->singleton(QueueBus::class, fn () => new DeduplicatingQueueBus(
             $this->app->make(LaravelQueueBus::class),
             $this->app->make(RedisQueueDeduplicator::class),
+            $this->app->make(CommandDeduplicationKeyResolver::class),
         ));
         $this->app->singleton(Client::class, fn () => new Client(
             (string) config('services.meilisearch.host'),
