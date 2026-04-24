@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Infrastructure\Search;
@@ -7,6 +8,7 @@ use Application\Contracts\Repositories\ProductRepositoryInterface;
 use Application\Contracts\Search\ProductSearchIndexer;
 use Domain\Product\Entity\Product;
 use Meilisearch\Client;
+use Override;
 
 final readonly class MeilisearchProductSearchIndexer implements ProductSearchIndexer
 {
@@ -15,9 +17,9 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
         private readonly ProductSearchDocumentMapper $mapper,
         private readonly ProductRepositoryInterface $products,
         private readonly ProductSearchCacheVersionManager $cacheVersionManager,
-    ) {
-    }
+    ) {}
 
+    #[Override]
     public function syncSettings(): void
     {
         $this->client
@@ -29,6 +31,7 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
         $this->cacheVersionManager->bump();
     }
 
+    #[Override]
     public function importAll(): void
     {
         $this->syncSettings();
@@ -47,6 +50,7 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
         });
     }
 
+    #[Override]
     public function index(int $productId): void
     {
         $product = $this->products->findById($productId);
@@ -61,6 +65,7 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
         $this->cacheVersionManager->bump();
     }
 
+    #[Override]
     public function remove(int $productId): void
     {
         $this->client

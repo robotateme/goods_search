@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Infrastructure\Search;
@@ -11,6 +12,7 @@ use Domain\Product\Search\ProductSearchCriteria;
 use Domain\Product\Search\ProductSort;
 use Infrastructure\Database\Search\DatabaseProductSearch;
 use Meilisearch\Client;
+use Override;
 
 final readonly class MeilisearchProductSearch implements ProductSearch
 {
@@ -18,8 +20,7 @@ final readonly class MeilisearchProductSearch implements ProductSearch
         private readonly Client $client,
         private readonly DatabaseProductSearch $databaseProductSearch,
         private readonly ProductRepositoryInterface $products,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array{hits?: list<array<string, mixed>>, totalHits?: int, estimatedTotalHits?: int}  $results
@@ -34,6 +35,7 @@ final readonly class MeilisearchProductSearch implements ProductSearch
 
             if (is_int($id)) {
                 $ids[] = $id;
+
                 continue;
             }
 
@@ -62,6 +64,7 @@ final readonly class MeilisearchProductSearch implements ProductSearch
         return $products;
     }
 
+    #[Override]
     public function search(ProductSearchCriteria $criteria): ProductPage
     {
         if (! $criteria->hasQuery()) {

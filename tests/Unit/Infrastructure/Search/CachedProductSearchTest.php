@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Unit\Infrastructure\Search;
@@ -9,16 +10,14 @@ use Domain\Product\Search\ProductPage;
 use Domain\Product\Search\ProductSearchCriteria;
 use Domain\Product\Search\ProductSort;
 use Domain\Product\ValueObject\CategoryId;
-use Domain\Product\ValueObject\Page;
-use Domain\Product\ValueObject\PerPage;
 use Domain\Product\ValueObject\Price;
 use Domain\Product\ValueObject\ProductId;
 use Domain\Product\ValueObject\Rating;
 use Illuminate\Cache\CacheManager;
-use Illuminate\Config\Repository as ConfigRepository;
 use Infrastructure\Search\CachedProductSearch;
 use Infrastructure\Search\ProductPageCacheSerializer;
 use Infrastructure\Search\ProductSearchCacheVersionManager;
+use Override;
 use Tests\TestCase;
 
 class CachedProductSearchTest extends TestCase
@@ -31,9 +30,9 @@ class CachedProductSearchTest extends TestCase
         {
             public function __construct(
                 private int &$calls,
-            ) {
-            }
+            ) {}
 
+            #[Override]
             public function search(ProductSearchCriteria $criteria): ProductPage
             {
                 $this->calls++;
@@ -87,9 +86,9 @@ class CachedProductSearchTest extends TestCase
         {
             public function __construct(
                 private int &$calls,
-            ) {
-            }
+            ) {}
 
+            #[Override]
             public function search(ProductSearchCriteria $criteria): ProductPage
             {
                 $this->calls++;

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Providers;
@@ -7,6 +8,7 @@ use Application\Contracts\Queue\QueueBus;
 use Application\Contracts\Search\ProductSearch;
 use Application\Contracts\Search\ProductSearchIndexer;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Support\ServiceProvider;
 use Infrastructure\Database\Search\DatabaseProductSearch;
@@ -21,15 +23,17 @@ use Infrastructure\Search\MeilisearchProductSearchIndexer;
 use Infrastructure\Search\ProductPageCacheSerializer;
 use Infrastructure\Search\ProductSearchCacheVersionManager;
 use Meilisearch\Client;
+use Override;
 
 class PortServiceProvider extends ServiceProvider
 {
+    #[Override]
     public function register(): void
     {
         $this->app->singleton(RedisQueueDeduplicator::class, fn () => new RedisQueueDeduplicator(
             $this->app->make(RedisFactory::class),
             $this->app->make(ScriptResolver::class),
-            $this->app->make(\Illuminate\Contracts\Config\Repository::class),
+            $this->app->make(Repository::class),
         ));
         $this->app->singleton(QueueBus::class, fn () => new DeduplicatingQueueBus(
             $this->app->make(LaravelQueueBus::class),

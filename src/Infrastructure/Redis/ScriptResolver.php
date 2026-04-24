@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Infrastructure\Redis;
@@ -9,8 +10,7 @@ final readonly class ScriptResolver
 {
     public function __construct(
         private string $basePath = __DIR__.'/Scripts',
-    ) {
-    }
+    ) {}
 
     public function resolve(string $path): string
     {

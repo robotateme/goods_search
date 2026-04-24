@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Middleware;
@@ -12,8 +13,7 @@ final class RedisSlidingWindowRateLimit
 {
     public function __construct(
         private readonly RedisSlidingWindowRateLimiter $rateLimiter,
-    ) {
-    }
+    ) {}
 
     public function handle(
         Request $request,

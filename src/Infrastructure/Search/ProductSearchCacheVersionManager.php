@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Infrastructure\Search;
@@ -10,8 +11,7 @@ final readonly class ProductSearchCacheVersionManager
 {
     public function __construct(
         private CacheFactory $cacheFactory,
-    ) {
-    }
+    ) {}
 
     public function currentVersion(): int
     {

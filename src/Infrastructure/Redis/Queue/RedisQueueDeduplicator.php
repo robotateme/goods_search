@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Infrastructure\Redis\Queue;
@@ -13,8 +14,7 @@ final readonly class RedisQueueDeduplicator
         private RedisFactory $redisFactory,
         private ScriptResolver $scriptResolver,
         private ConfigRepository $config,
-    ) {
-    }
+    ) {}
 
     public function claim(string $key, int $ttlSeconds): bool
     {

@@ -1,10 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Product;
+use Faker\Generator;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,6 +15,7 @@ class CatalogSeeder extends Seeder
     use WithoutModelEvents;
 
     private const DEFAULT_CHUNK_SIZE = 1000;
+
     private const SEARCH_KEYWORDS = [
         'Mouse',
         'Keyboard',
@@ -21,6 +24,7 @@ class CatalogSeeder extends Seeder
         'Router',
         'Speaker',
     ];
+
     private const PRODUCT_PREFIXES = [
         'Wireless',
         'Smart',
@@ -37,8 +41,7 @@ class CatalogSeeder extends Seeder
     public function __construct(
         private readonly int $categoriesCount = 12,
         private readonly int $productsCount = 5000,
-    ) {
-    }
+    ) {}
 
     public function run(): void
     {
@@ -72,7 +75,7 @@ class CatalogSeeder extends Seeder
         }
     }
 
-    private function generateProductName(\Faker\Generator $faker, int $index, int $remaining): string
+    private function generateProductName(Generator $faker, int $index, int $remaining): string
     {
         $keyword = $faker->randomElement(self::SEARCH_KEYWORDS);
         $prefix = $faker->randomElement(self::PRODUCT_PREFIXES);

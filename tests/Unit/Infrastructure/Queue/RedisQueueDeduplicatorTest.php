@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Unit\Infrastructure\Queue;
@@ -8,6 +9,7 @@ use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
 use Infrastructure\Redis\Queue\RedisQueueDeduplicator;
 use Infrastructure\Redis\ScriptResolver;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class RedisQueueDeduplicatorTest extends TestCase
@@ -17,7 +19,7 @@ class RedisQueueDeduplicatorTest extends TestCase
     {
         $deduplicator = new RedisQueueDeduplicator(
             new FakeRedisFactory(new FakeEvalRedisConnection(1)),
-            new ScriptResolver(),
+            new ScriptResolver,
             new ConfigRepository(['queue.dedup.redis_connection' => 'default']),
         );
 
@@ -29,7 +31,7 @@ class RedisQueueDeduplicatorTest extends TestCase
     {
         $deduplicator = new RedisQueueDeduplicator(
             new FakeRedisFactory(new FakeEvalRedisConnection(0)),
-            new ScriptResolver(),
+            new ScriptResolver,
             new ConfigRepository(['queue.dedup.redis_connection' => 'default']),
         );
 
@@ -41,9 +43,9 @@ final class FakeRedisFactory implements RedisFactory
 {
     public function __construct(
         private readonly Connection $connection,
-    ) {
-    }
+    ) {}
 
+    #[Override]
     public function connection($name = null): Connection
     {
         return $this->connection;
@@ -54,19 +56,14 @@ final class FakeEvalRedisConnection extends Connection
 {
     public function __construct(
         private readonly int $evalResult,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array<int, string>|string $channels
+     * @param  array<array-key, mixed>|string  $channels
      */
-    public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void
-    {
-    }
+    #[Override]
+    public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void {}
 
-    /**
-     * @return int
-     */
     public function eval(string $script, int $numberOfKeys, string ...$arguments): int
     {
         return $this->evalResult;

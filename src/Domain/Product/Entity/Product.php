@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Domain\Product\Entity;
@@ -20,6 +21,5 @@ final readonly class Product
         public Rating $rating,
         public ?DateTimeImmutable $createdAt,
         public ?DateTimeImmutable $updatedAt,
-    ) {
-    }
+    ) {}
 }

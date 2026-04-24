@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\OpenApi;
@@ -18,6 +19,4 @@ use OpenApi\Attributes as OA;
     name: 'Products',
     description: 'Product search endpoints',
 )]
-final class OpenApiSpec
-{
-}
+final class OpenApiSpec {}

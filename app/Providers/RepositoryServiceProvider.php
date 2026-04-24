@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Providers;
@@ -6,9 +7,11 @@ namespace App\Providers;
 use Application\Contracts\Repositories\ProductRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 use Infrastructure\Database\ProductRepository;
+use Override;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
+    #[Override]
     public function register(): void
     {
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);

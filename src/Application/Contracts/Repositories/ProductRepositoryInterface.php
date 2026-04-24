@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Application\Contracts\Repositories;
@@ -16,5 +17,8 @@ interface ProductRepositoryInterface
      */
     public function getByIds(array $ids): array;
 
+    /**
+     * @param  Closure(list<Product>): void  $callback
+     */
     public function chunkById(int $chunkSize, Closure $callback): void;
 }

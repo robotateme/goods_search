@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Responses;
@@ -29,8 +30,7 @@ final readonly class ProductResponseData
         public ?string $created_at,
         #[OA\Property(type: 'string', format: 'date-time', example: '2026-04-21T15:00:00+00:00', nullable: true)]
         public ?string $updated_at,
-    ) {
-    }
+    ) {}
 
     public static function fromProduct(Product $product): self
     {

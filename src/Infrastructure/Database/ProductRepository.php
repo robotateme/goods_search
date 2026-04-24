@@ -1,20 +1,22 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Infrastructure\Database;
 
-use Application\Contracts\Repositories\ProductRepositoryInterface;
 use App\Models\Product as ProductModel;
+use Application\Contracts\Repositories\ProductRepositoryInterface;
 use Closure;
 use Domain\Product\Entity\Product;
+use Override;
 
 final readonly class ProductRepository implements ProductRepositoryInterface
 {
     public function __construct(
         private readonly ProductModelMapper $mapper,
-    ) {
-    }
+    ) {}
 
+    #[Override]
     public function findById(int $productId): ?Product
     {
         $product = ProductModel::query()->find($productId);
@@ -26,6 +28,7 @@ final readonly class ProductRepository implements ProductRepositoryInterface
      * @param  list<int>  $ids
      * @return list<Product>
      */
+    #[Override]
     public function getByIds(array $ids): array
     {
         return $this->mapProducts(
@@ -36,6 +39,7 @@ final readonly class ProductRepository implements ProductRepositoryInterface
     /**
      * @param  Closure(list<Product>): void  $callback
      */
+    #[Override]
     public function chunkById(int $chunkSize, Closure $callback): void
     {
         $mapped = [];

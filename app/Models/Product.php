@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Models;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Override;
 
 /**
  * @property int $id
@@ -20,9 +22,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  *
- * @method static Builder<self> query()
- * @method static Builder<self> whereIn(string $column, mixed $values)
- * @method static Builder<self> orderBy(string $column, string $direction = 'asc')
+ * @method static Builder<static> whereIn(string $column, mixed $values)
+ * @method static Builder<static> orderBy(string $column, string $direction = 'asc')
  */
 class Product extends Model
 {
@@ -39,6 +40,7 @@ class Product extends Model
         'rating',
     ];
 
+    #[Override]
     protected function casts(): array
     {
         return [

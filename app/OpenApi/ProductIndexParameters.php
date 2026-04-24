@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\OpenApi;
@@ -68,6 +69,4 @@ use OpenApi\Attributes as OA;
     required: false,
     schema: new OA\Schema(type: 'integer', minimum: 1, maximum: 100, default: 15),
 )]
-final class ProductIndexParameters
-{
-}
+final class ProductIndexParameters {}

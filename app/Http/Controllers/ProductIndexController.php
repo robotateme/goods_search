@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Controllers;
@@ -15,8 +16,7 @@ final class ProductIndexController extends Controller
     public function __construct(
         private readonly SearchProductsHandler $handler,
         private readonly SearchProductsQueryFactory $queryFactory,
-    ) {
-    }
+    ) {}
 
     #[OA\Get(
         path: '/api/products',

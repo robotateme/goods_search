@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature;
@@ -8,10 +9,12 @@ use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
 use Infrastructure\Redis\RateLimit\RedisSlidingWindowRateLimiter;
 use Infrastructure\Redis\ScriptResolver;
+use Override;
 use Tests\TestCase;
 
 class RedisSlidingWindowRateLimitTest extends TestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -29,7 +32,7 @@ class RedisSlidingWindowRateLimitTest extends TestCase
             RedisSlidingWindowRateLimiter::class,
             new RedisSlidingWindowRateLimiter(
                 $this->app->make(RedisFactory::class),
-                new ScriptResolver(),
+                new ScriptResolver,
                 $this->app->make(ConfigRepository::class),
             ),
         );
@@ -47,9 +50,9 @@ final class FeatureFakeRedisFactory implements RedisFactory
 {
     public function __construct(
         private readonly Connection $connection,
-    ) {
-    }
+    ) {}
 
+    #[Override]
     public function connection($name = null): Connection
     {
         return $this->connection;
@@ -59,19 +62,17 @@ final class FeatureFakeRedisFactory implements RedisFactory
 final class FeatureFakeRedisConnection extends Connection
 {
     /**
-     * @param array{0:int,1:int,2:int} $evalResult
+     * @param  array{0:int,1:int,2:int}  $evalResult
      */
     public function __construct(
         private readonly array $evalResult,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array<int, string>|string $channels
+     * @param  array<array-key, mixed>|string  $channels
      */
-    public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void
-    {
-    }
+    #[Override]
+    public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void {}
 
     /**
      * @return array{0:int,1:int,2:int}

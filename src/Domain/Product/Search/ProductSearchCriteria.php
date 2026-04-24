@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Domain\Product\Search;
@@ -19,8 +20,7 @@ final readonly class ProductSearchCriteria
         public ProductSort $sort,
         public PerPage $perPage,
         public Page $page,
-    ) {
-    }
+    ) {}
 
     public function hasQuery(): bool
     {

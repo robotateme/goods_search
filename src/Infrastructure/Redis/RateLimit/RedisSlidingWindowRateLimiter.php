@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Infrastructure\Redis\RateLimit;
@@ -13,8 +14,7 @@ final readonly class RedisSlidingWindowRateLimiter
         private RedisFactory $redisFactory,
         private ScriptResolver $scriptResolver,
         private ConfigRepository $config,
-    ) {
-    }
+    ) {}
 
     public function attempt(string $key, int $maxRequests, int $windowSeconds, ?int $nowMs = null): SlidingWindowResult
     {

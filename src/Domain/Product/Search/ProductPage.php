@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Domain\Product\Search;
@@ -17,8 +18,7 @@ final readonly class ProductPage
         public int $total,
         public PerPage $perPage,
         public Page $currentPage,
-    ) {
-    }
+    ) {}
 
     public function lastPage(): int
     {

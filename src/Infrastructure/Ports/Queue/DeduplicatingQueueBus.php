@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Infrastructure\Ports\Queue;
@@ -6,15 +7,16 @@ namespace Infrastructure\Ports\Queue;
 use App\Jobs\IndexProductInSearchJob;
 use Application\Contracts\Queue\QueueBus;
 use Infrastructure\Redis\Queue\RedisQueueDeduplicator;
+use Override;
 
 final readonly class DeduplicatingQueueBus implements QueueBus
 {
     public function __construct(
         private QueueBus $inner,
         private RedisQueueDeduplicator $deduplicator,
-    ) {
-    }
+    ) {}
 
+    #[Override]
     public function dispatch(object $command): mixed
     {
         if (! $this->shouldDispatch($command)) {
@@ -24,6 +26,7 @@ final readonly class DeduplicatingQueueBus implements QueueBus
         return $this->inner->dispatch($command);
     }
 
+    #[Override]
     public function dispatchSync(object $command): mixed
     {
         return $this->inner->dispatchSync($command);

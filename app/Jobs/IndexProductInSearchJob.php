@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Jobs;
@@ -13,8 +14,7 @@ final class IndexProductInSearchJob implements ShouldQueue
 
     public function __construct(
         public readonly int $productId,
-    ) {
-    }
+    ) {}
 
     public function handle(ProductSearchIndexer $indexer): void
     {

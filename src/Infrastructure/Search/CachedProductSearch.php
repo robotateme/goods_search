@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Infrastructure\Search;
@@ -8,6 +9,7 @@ use Domain\Product\Search\ProductPage;
 use Domain\Product\Search\ProductSearchCriteria;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Override;
 
 final readonly class CachedProductSearch implements ProductSearch
 {
@@ -16,9 +18,9 @@ final readonly class CachedProductSearch implements ProductSearch
         private CacheFactory $cacheFactory,
         private ProductSearchCacheVersionManager $versionManager,
         private ProductPageCacheSerializer $serializer,
-    ) {
-    }
+    ) {}
 
+    #[Override]
     public function search(ProductSearchCriteria $criteria): ProductPage
     {
         if (! (bool) config('search.cache.enabled', true)) {

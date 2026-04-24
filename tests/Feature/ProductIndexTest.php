@@ -1,15 +1,18 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Product;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class ProductIndexTest extends TestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

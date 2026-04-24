@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\OpenApi;
@@ -21,6 +22,4 @@ use OpenApi\Attributes as OA;
         type: 'object',
     ),
 )]
-final class ValidationErrorResponse
-{
-}
+final class ValidationErrorResponse {}

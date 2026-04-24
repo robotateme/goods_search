@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature;
@@ -14,10 +15,12 @@ use Illuminate\Redis\Connections\Connection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Infrastructure\Redis\Queue\RedisQueueDeduplicator;
+use Override;
 use Tests\TestCase;
 
 class SearchIndexQueueingTest extends TestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -69,15 +72,11 @@ class SearchIndexQueueingTest extends TestCase
                     private array $claimedKeys = [];
 
                     /**
-                     * @param array<int, string>|string $channels
+                     * @param  array<array-key, mixed>|string  $channels
                      */
-                    public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void
-                    {
-                    }
+                    #[Override]
+                    public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void {}
 
-                    /**
-                     * @return int
-                     */
                     public function eval(string $script, int $numberOfKeys, string ...$arguments): int
                     {
                         $key = $arguments[0] ?? '';
@@ -93,6 +92,7 @@ class SearchIndexQueueingTest extends TestCase
                 };
             }
 
+            #[Override]
             public function connection($name = null): Connection
             {
                 return $this->connection;

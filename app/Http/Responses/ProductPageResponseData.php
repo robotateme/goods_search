@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Responses;
@@ -33,8 +34,7 @@ final readonly class ProductPageResponseData
         public ?int $to,
         #[OA\Property(example: 200)]
         public int $total,
-    ) {
-    }
+    ) {}
 
     public static function fromPage(ProductPage $page, string $path): self
     {
