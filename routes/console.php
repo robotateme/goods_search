@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 
 use Application\Commands\ImportProductsToSearchCommand;
+use Application\Commands\SeedCatalogCommand;
 use Application\Commands\SyncProductSearchSettingsCommand;
 use Application\Contracts\Queue\QueueBus;
-use Database\Seeders\CatalogSeeder;
+use Application\Handlers\SeedCatalogHandler;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Command\Command;
@@ -28,11 +29,15 @@ Artisan::command('search:products:import', function (QueueBus $queueBus): int {
     return Command::SUCCESS;
 })->purpose('Import products into the search index');
 
-Artisan::command('catalog:seed {products=5000} {categories=12}', function (int $products, int $categories): int {
-    (new CatalogSeeder(
-        categoriesCount: $categories,
+Artisan::command('catalog:seed {products=5000} {categories=12}', function (
+    int $products,
+    int $categories,
+    SeedCatalogHandler $handler,
+): int {
+    $handler->handle(new SeedCatalogCommand(
         productsCount: $products,
-    ))->run();
+        categoriesCount: $categories,
+    ));
 
     echo sprintf('Catalog seeded: %d categories, %d products.', $categories, $products).PHP_EOL;
 
