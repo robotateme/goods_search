@@ -6,6 +6,7 @@ namespace Infrastructure\Database;
 
 use Domain\Product\Search\ProductSearchCriteria;
 use Domain\Product\Search\ProductSort;
+use Domain\Product\ValueObject\Price;
 use Illuminate\Database\Eloquent\Builder;
 use Infrastructure\Database\Eloquent\Product as ProductModel;
 
@@ -18,10 +19,16 @@ final class ProductSearchQueryAdapter
     {
         $query = ProductModel::query()
             ->with('category')
-            ->when($criteria->priceFrom !== null, fn (Builder $builder) => $builder->where('price', '>=', $criteria->priceFrom))
-            ->when($criteria->priceTo !== null, fn (Builder $builder) => $builder->where('price', '<=', $criteria->priceTo))
             ->when($criteria->inStock !== null, fn (Builder $builder) => $builder->where('in_stock', $criteria->inStock))
             ->when($criteria->ratingFrom !== null, fn (Builder $builder) => $builder->where('rating', '>=', $criteria->ratingFrom));
+
+        if ($criteria->priceFrom !== null) {
+            $query->where('price', '>=', Price::fromInput($criteria->priceFrom)->minorUnits());
+        }
+
+        if ($criteria->priceTo !== null) {
+            $query->where('price', '<=', Price::fromInput($criteria->priceTo)->minorUnits());
+        }
 
         if ($criteria->categoryId !== null) {
             $query->where('category_id', $criteria->categoryId->value());

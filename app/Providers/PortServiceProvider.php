@@ -27,6 +27,7 @@ use Infrastructure\Search\ProductPageCacheSerializer;
 use Infrastructure\Search\ProductSearchCacheVersionManager;
 use Meilisearch\Client;
 use Override;
+use UnexpectedValueException;
 
 class PortServiceProvider extends ServiceProvider
 {
@@ -46,8 +47,8 @@ class PortServiceProvider extends ServiceProvider
             $this->app->make(CommandDeduplicationKeyResolver::class),
         ));
         $this->app->singleton(Client::class, fn () => new Client(
-            (string) config('services.meilisearch.host'),
-            config('services.meilisearch.key'),
+            $this->stringConfig('services.meilisearch.host'),
+            $this->nullableStringConfig('services.meilisearch.key'),
         ));
         $this->app->singleton(ProductSearchCacheVersionManager::class);
         $this->app->bind(ProductSearch::class, function () {
@@ -67,5 +68,27 @@ class PortServiceProvider extends ServiceProvider
                 ? $this->app->make(MeilisearchProductSearchIndexer::class)
                 : $this->app->make(DatabaseProductSearchIndexer::class);
         });
+    }
+
+    private function stringConfig(string $key): string
+    {
+        $value = config($key);
+
+        if (! is_string($value)) {
+            throw new UnexpectedValueException(sprintf('Config value "%s" must be a string.', $key));
+        }
+
+        return $value;
+    }
+
+    private function nullableStringConfig(string $key): ?string
+    {
+        $value = config($key);
+
+        if ($value === null || is_string($value)) {
+            return $value;
+        }
+
+        throw new UnexpectedValueException(sprintf('Config value "%s" must be a string or null.', $key));
     }
 }

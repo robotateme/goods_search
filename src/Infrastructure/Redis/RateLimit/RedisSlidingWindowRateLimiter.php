@@ -6,6 +6,7 @@ namespace Infrastructure\Redis\RateLimit;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
+use Illuminate\Redis\Connections\Connection;
 use Infrastructure\Redis\ScriptResolver;
 
 final readonly class RedisSlidingWindowRateLimiter
@@ -24,7 +25,7 @@ final readonly class RedisSlidingWindowRateLimiter
 
         /** @var array{0:int|string,1:int|string,2:int|string} $response */
         $response = $this->redis()
-            ->eval(
+            ->command('eval', [
                 $this->scriptResolver->resolve('rate-limit/sliding_window_rate_limiter.lua'),
                 1,
                 $key,
@@ -32,7 +33,7 @@ final readonly class RedisSlidingWindowRateLimiter
                 (string) $windowMs,
                 (string) $maxRequests,
                 $member,
-            );
+            ]);
 
         $allowed = (int) $response[0] === 1;
 
@@ -43,10 +44,19 @@ final readonly class RedisSlidingWindowRateLimiter
         );
     }
 
-    private function redis(): mixed
+    private function redis(): Connection
     {
-        return $this->redisFactory->connection(
-            (string) $this->config->get('rate_limit.redis_connection', 'default'),
-        );
+        return $this->redisFactory->connection($this->connectionName());
+    }
+
+    private function connectionName(): string
+    {
+        $connection = $this->config->get('rate_limit.redis_connection', 'default');
+
+        if (! is_string($connection)) {
+            return 'default';
+        }
+
+        return $connection;
     }
 }

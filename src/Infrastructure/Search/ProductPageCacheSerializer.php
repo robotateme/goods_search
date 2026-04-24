@@ -57,7 +57,7 @@ final class ProductPageCacheSerializer
     }
 
     /**
-     * @param  array<string, mixed>  $payload
+     * @param  array<mixed, mixed>  $payload
      */
     public function deserialize(array $payload): ProductPage
     {
@@ -71,20 +71,27 @@ final class ProductPageCacheSerializer
             throw new InvalidArgumentException('Cached product page payload is invalid.');
         }
 
+        $items = [];
+
+        foreach ($payload['items'] as $item) {
+            if (! is_array($item)) {
+                throw new InvalidArgumentException('Cached product page item payload is invalid.');
+            }
+
+            $items[] = new Product(
+                id: new ProductId($this->int($item['id'] ?? null)),
+                name: $this->string($item['name'] ?? null),
+                price: new Price($this->string($item['price'] ?? null)),
+                categoryId: new CategoryId($this->int($item['category_id'] ?? null)),
+                inStock: $this->bool($item['in_stock'] ?? null),
+                rating: new Rating($this->float($item['rating'] ?? null)),
+                createdAt: $this->dateTime($item['created_at'] ?? null),
+                updatedAt: $this->dateTime($item['updated_at'] ?? null),
+            );
+        }
+
         return new ProductPage(
-            items: array_values(array_map(
-                fn (array $item): Product => new Product(
-                    id: new ProductId($this->int($item['id'] ?? null)),
-                    name: $this->string($item['name'] ?? null),
-                    price: new Price($this->string($item['price'] ?? null)),
-                    categoryId: new CategoryId($this->int($item['category_id'] ?? null)),
-                    inStock: $this->bool($item['in_stock'] ?? null),
-                    rating: new Rating($this->float($item['rating'] ?? null)),
-                    createdAt: $this->dateTime($item['created_at'] ?? null),
-                    updatedAt: $this->dateTime($item['updated_at'] ?? null),
-                ),
-                $payload['items'],
-            )),
+            items: $items,
             total: $payload['total'],
             perPage: new PerPage($payload['per_page']),
             currentPage: new Page($payload['current_page']),

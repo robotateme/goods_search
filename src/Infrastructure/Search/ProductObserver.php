@@ -18,11 +18,22 @@ final readonly class ProductObserver implements ShouldHandleEventsAfterCommit
 
     public function saved(Product $product): void
     {
-        $this->queueBus->dispatch(new IndexProductInSearchCommand($product->getKey()));
+        $this->queueBus->dispatch(new IndexProductInSearchCommand($this->productId($product)));
     }
 
     public function deleted(Product $product): void
     {
-        $this->queueBus->dispatch(new RemoveProductInSearchCommand($product->getKey()));
+        $this->queueBus->dispatch(new RemoveProductInSearchCommand($this->productId($product)));
+    }
+
+    private function productId(Product $product): int
+    {
+        $id = $product->getKey();
+
+        if (! is_int($id)) {
+            throw new \UnexpectedValueException('Observed product key must be an integer.');
+        }
+
+        return $id;
     }
 }

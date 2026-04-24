@@ -35,11 +35,28 @@ final readonly class ProductSearchCacheVersionManager
 
     private function cache(): CacheRepository
     {
-        return $this->cacheFactory->store((string) config('search.cache.store'));
+        return $this->cacheFactory->store($this->cacheStore());
     }
 
     private function versionKey(): string
     {
-        return (string) config('search.cache.version_key');
+        $key = config('search.cache.version_key');
+
+        if (! is_string($key)) {
+            throw new \UnexpectedValueException('Search cache version key config must be a string.');
+        }
+
+        return $key;
+    }
+
+    private function cacheStore(): string
+    {
+        $store = config('search.cache.store');
+
+        if (! is_string($store)) {
+            throw new \UnexpectedValueException('Search cache store config must be a string.');
+        }
+
+        return $store;
     }
 }

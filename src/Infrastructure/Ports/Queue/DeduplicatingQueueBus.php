@@ -35,7 +35,7 @@ final readonly class DeduplicatingQueueBus implements QueueBus
 
     private function shouldDispatch(QueuedCommand $command): bool
     {
-        if ((string) config('queue.default', 'sync') !== 'redis') {
+        if ($this->defaultQueueDriver() !== 'redis') {
             return true;
         }
 
@@ -47,7 +47,29 @@ final readonly class DeduplicatingQueueBus implements QueueBus
 
         return $this->deduplicator->claim(
             $key,
-            (int) config('queue.dedup.ttl_seconds', 30),
+            $this->dedupTtlSeconds(),
         );
+    }
+
+    private function defaultQueueDriver(): string
+    {
+        $driver = config('queue.default', 'sync');
+
+        if (! is_string($driver)) {
+            return 'sync';
+        }
+
+        return $driver;
+    }
+
+    private function dedupTtlSeconds(): int
+    {
+        $ttl = config('queue.dedup.ttl_seconds', 30);
+
+        if (! is_int($ttl) && ! (is_string($ttl) && is_numeric($ttl))) {
+            return 30;
+        }
+
+        return (int) $ttl;
     }
 }

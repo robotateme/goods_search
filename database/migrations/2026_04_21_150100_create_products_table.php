@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
-            $table->decimal('price', 10, 2);
+            $table->unsignedInteger('price');
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->boolean('in_stock')->default(true);
             $table->float('rating');

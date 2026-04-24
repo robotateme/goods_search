@@ -94,14 +94,44 @@ final class FakeRedisConnection extends Connection
     /**
      * @return array{0:int,1:int,2:int}
      */
-    public function eval(string $script, int $numberOfKeys, string ...$arguments): array
+    /**
+     * @param  array<int, mixed>  $parameters
+     */
+    #[Override]
+    public function command($method, array $parameters = []): mixed
     {
+        if ($method !== 'eval') {
+            throw new \InvalidArgumentException(sprintf('Unexpected Redis command: %s', $method));
+        }
+
         $this->calls[] = [
-            'script' => $script,
-            'number_of_keys' => $numberOfKeys,
-            'arguments' => $arguments,
+            'script' => $this->stringParameter($parameters[0] ?? ''),
+            'number_of_keys' => $this->intParameter($parameters[1] ?? 0),
+            'arguments' => array_map(fn (mixed $argument): string => $this->stringParameter($argument), array_slice($parameters, 2)),
         ];
 
         return $this->evalResult;
+    }
+
+    private function intParameter(mixed $value): int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (is_string($value) && is_numeric($value)) {
+            return (int) $value;
+        }
+
+        throw new \InvalidArgumentException('Expected int-like Redis command parameter.');
+    }
+
+    private function stringParameter(mixed $value): string
+    {
+        if (is_string($value) || is_int($value) || is_float($value) || is_bool($value)) {
+            return (string) $value;
+        }
+
+        throw new \InvalidArgumentException('Expected scalar Redis command parameter.');
     }
 }

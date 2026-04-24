@@ -77,8 +77,16 @@ final class FeatureFakeRedisConnection extends Connection
     /**
      * @return array{0:int,1:int,2:int}
      */
-    public function eval(string $script, int $numberOfKeys, string ...$arguments): array
+    /**
+     * @param  array<int, mixed>  $parameters
+     */
+    #[Override]
+    public function command($method, array $parameters = []): mixed
     {
+        if ($method !== 'eval') {
+            throw new \InvalidArgumentException(sprintf('Unexpected Redis command: %s', $method));
+        }
+
         return $this->evalResult;
     }
 }

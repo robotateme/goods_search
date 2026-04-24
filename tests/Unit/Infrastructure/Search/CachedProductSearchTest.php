@@ -14,6 +14,7 @@ use Domain\Product\ValueObject\Price;
 use Domain\Product\ValueObject\ProductId;
 use Domain\Product\ValueObject\Rating;
 use Illuminate\Cache\CacheManager;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Infrastructure\Search\CachedProductSearch;
 use Infrastructure\Search\ProductPageCacheSerializer;
 use Infrastructure\Search\ProductSearchCacheVersionManager;
@@ -127,11 +128,12 @@ class CachedProductSearchTest extends TestCase
 
     private function makeCachedSearch(ProductSearch $inner, ?ProductSearchCacheVersionManager $versionManager = null): CachedProductSearch
     {
-        $this->app['config']->set('search.cache.enabled', true);
-        $this->app['config']->set('search.cache.store', 'array');
-        $this->app['config']->set('search.cache.ttl_seconds', 300);
-        $this->app['config']->set('search.cache.prefix', 'test:search:products');
-        $this->app['config']->set('search.cache.version_key', 'test:search:products:version');
+        $config = $this->app->make(ConfigRepository::class);
+        $config->set('search.cache.enabled', true);
+        $config->set('search.cache.store', 'array');
+        $config->set('search.cache.ttl_seconds', 300);
+        $config->set('search.cache.prefix', 'test:search:products');
+        $config->set('search.cache.version_key', 'test:search:products:version');
 
         return new CachedProductSearch(
             $inner,
@@ -176,7 +178,9 @@ class CachedProductSearchTest extends TestCase
         $serializer = $this->app->make(ProductPageCacheSerializer::class);
         $payload = unserialize(serialize($serializer->serialize($page)));
 
-        self::assertIsArray($payload);
+        if (! is_array($payload)) {
+            self::fail('Serialized product page payload must be an array.');
+        }
 
         $restored = $serializer->deserialize($payload);
 

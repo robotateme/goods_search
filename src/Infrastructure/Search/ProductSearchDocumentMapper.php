@@ -12,7 +12,7 @@ final class ProductSearchDocumentMapper
      * @return array{
      *     id: int,
      *     name: string,
-     *     price: float,
+     *     price: int,
      *     category_id: int,
      *     in_stock: bool,
      *     rating: float,
@@ -25,7 +25,7 @@ final class ProductSearchDocumentMapper
         return [
             'id' => $product->id->value(),
             'name' => $product->name,
-            'price' => (float) $product->price->value(),
+            'price' => $product->price->minorUnits(),
             'category_id' => $product->categoryId->value(),
             'in_stock' => $product->inStock,
             'rating' => $product->rating->value(),

@@ -41,7 +41,7 @@ final readonly class CachedProductSearch implements ProductSearch
         $this->cache()->put(
             $this->key($criteria),
             $this->serializer->serialize($page),
-            (int) config('search.cache.ttl_seconds', 300),
+            $this->ttlSeconds(),
         );
 
         return $page;
@@ -49,7 +49,7 @@ final readonly class CachedProductSearch implements ProductSearch
 
     private function cache(): CacheRepository
     {
-        return $this->cacheFactory->store((string) config('search.cache.store'));
+        return $this->cacheFactory->store($this->cacheStore());
     }
 
     private function key(ProductSearchCriteria $criteria): string
@@ -69,8 +69,41 @@ final readonly class CachedProductSearch implements ProductSearch
 
         return sprintf(
             '%s:%s',
-            (string) config('search.cache.prefix', 'search:products'),
+            $this->cachePrefix(),
             sha1((string) json_encode($payload, JSON_THROW_ON_ERROR)),
         );
+    }
+
+    private function ttlSeconds(): int
+    {
+        $ttl = config('search.cache.ttl_seconds', 300);
+
+        if (! is_int($ttl) && ! (is_string($ttl) && is_numeric($ttl))) {
+            return 300;
+        }
+
+        return (int) $ttl;
+    }
+
+    private function cacheStore(): string
+    {
+        $store = config('search.cache.store');
+
+        if (! is_string($store)) {
+            throw new \UnexpectedValueException('Search cache store config must be a string.');
+        }
+
+        return $store;
+    }
+
+    private function cachePrefix(): string
+    {
+        $prefix = config('search.cache.prefix', 'search:products');
+
+        if (! is_string($prefix)) {
+            return 'search:products';
+        }
+
+        return $prefix;
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Infrastructure\Database;
 
 use Application\Contracts\Catalog\CatalogSeeder as CatalogSeederContract;
+use Domain\Product\ValueObject\Price;
 use Faker\Generator;
 use Infrastructure\Database\Eloquent\Category;
 use Infrastructure\Database\Eloquent\Product;
@@ -55,7 +56,7 @@ final class CatalogSeeder implements CatalogSeederContract
             for ($index = 0; $index < $batchSize; $index++) {
                 $rows[] = [
                     'name' => $this->generateProductName($faker, $index, $remaining),
-                    'price' => $faker->randomFloat(2, 10, 1000),
+                    'price' => Price::fromInput($faker->randomFloat(2, 10, 1000))->minorUnits(),
                     'category_id' => $faker->randomElement($categoryIds),
                     'in_stock' => $faker->boolean(80),
                     'rating' => $faker->randomFloat(1, 2.5, 5),
@@ -71,9 +72,23 @@ final class CatalogSeeder implements CatalogSeederContract
 
     private function generateProductName(Generator $faker, int $index, int $remaining): string
     {
-        $keyword = $faker->randomElement(self::SEARCH_KEYWORDS);
-        $prefix = $faker->randomElement(self::PRODUCT_PREFIXES);
+        $keyword = $this->pickRandomString($faker, self::SEARCH_KEYWORDS);
+        $prefix = $this->pickRandomString($faker, self::PRODUCT_PREFIXES);
 
         return sprintf('%s %s %d%s', $prefix, $keyword, $remaining, chr(65 + ($index % 26)));
+    }
+
+    /**
+     * @param  list<string>  $values
+     */
+    private function pickRandomString(Generator $faker, array $values): string
+    {
+        $value = $faker->randomElement($values);
+
+        if (! is_string($value)) {
+            throw new \UnexpectedValueException('Expected faker to return a string.');
+        }
+
+        return $value;
     }
 }

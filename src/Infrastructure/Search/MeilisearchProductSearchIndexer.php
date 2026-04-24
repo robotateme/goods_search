@@ -23,10 +23,10 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
     public function syncSettings(): void
     {
         $this->client
-            ->index((string) config('search.products.index'))
+            ->index($this->indexName())
             ->updateSettings([
-                'filterableAttributes' => config('search.products.filterable_attributes', []),
-                'sortableAttributes' => config('search.products.sortable_attributes', []),
+                'filterableAttributes' => $this->stringListConfig('search.products.filterable_attributes'),
+                'sortableAttributes' => $this->stringListConfig('search.products.sortable_attributes'),
             ]);
         $this->cacheVersionManager->bump();
     }
@@ -44,7 +44,7 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
 
             if ($documents !== []) {
                 $this->client
-                    ->index((string) config('search.products.index'))
+                    ->index($this->indexName())
                     ->addDocuments($documents, 'id');
             }
         });
@@ -60,7 +60,7 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
         }
 
         $this->client
-            ->index((string) config('search.products.index'))
+            ->index($this->indexName())
             ->addDocuments([$this->mapper->map($product)], 'id');
         $this->cacheVersionManager->bump();
     }
@@ -69,8 +69,43 @@ final readonly class MeilisearchProductSearchIndexer implements ProductSearchInd
     public function remove(int $productId): void
     {
         $this->client
-            ->index((string) config('search.products.index'))
+            ->index($this->indexName())
             ->deleteDocument((string) $productId);
         $this->cacheVersionManager->bump();
+    }
+
+    private function indexName(): string
+    {
+        $index = config('search.products.index');
+
+        if (! is_string($index)) {
+            throw new \UnexpectedValueException('Search index name config must be a string.');
+        }
+
+        return $index;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function stringListConfig(string $key): array
+    {
+        $value = config($key, []);
+
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $items = [];
+
+        foreach ($value as $item) {
+            if (! is_string($item)) {
+                continue;
+            }
+
+            $items[] = $item;
+        }
+
+        return $items;
     }
 }

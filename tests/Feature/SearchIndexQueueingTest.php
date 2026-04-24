@@ -10,6 +10,7 @@ use App\Jobs\RemoveProductFromSearchJob;
 use App\Jobs\SyncProductSearchSettingsJob;
 use Application\Commands\IndexProductInSearchCommand;
 use Application\Contracts\Queue\QueueBus;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Redis\Connections\Connection;
 use Illuminate\Support\Facades\Artisan;
@@ -78,9 +79,19 @@ class SearchIndexQueueingTest extends TestCase
                     #[Override]
                     public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void {}
 
-                    public function eval(string $script, int $numberOfKeys, string ...$arguments): int
+                    /**
+                     * @param  array<int, mixed>  $parameters
+                     */
+                    #[Override]
+                    public function command($method, array $parameters = []): mixed
                     {
-                        $key = $arguments[0] ?? '';
+                        if ($method !== 'eval') {
+                            throw new \InvalidArgumentException(sprintf('Unexpected Redis command: %s', $method));
+                        }
+
+                        $key = isset($parameters[2]) && (is_string($parameters[2]) || is_int($parameters[2]) || is_float($parameters[2]) || is_bool($parameters[2]))
+                            ? (string) $parameters[2]
+                            : '';
 
                         if (isset($this->claimedKeys[$key])) {
                             return 0;
@@ -99,8 +110,9 @@ class SearchIndexQueueingTest extends TestCase
                 return $this->connection;
             }
         });
-        $this->app['config']->set('queue.default', 'redis');
-        $this->app['config']->set('queue.dedup.ttl_seconds', 30);
+        $config = $this->app->make(ConfigRepository::class);
+        $config->set('queue.default', 'redis');
+        $config->set('queue.dedup.ttl_seconds', 30);
         $this->app->forgetInstance(RedisQueueDeduplicator::class);
         $this->app->forgetInstance(QueueBus::class);
         $queueBus = $this->app->make(QueueBus::class);

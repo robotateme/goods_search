@@ -64,8 +64,16 @@ final class FakeEvalRedisConnection extends Connection
     #[Override]
     public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void {}
 
-    public function eval(string $script, int $numberOfKeys, string ...$arguments): int
+    /**
+     * @param  array<int, mixed>  $parameters
+     */
+    #[Override]
+    public function command($method, array $parameters = []): mixed
     {
+        if ($method !== 'eval') {
+            throw new \InvalidArgumentException(sprintf('Unexpected Redis command: %s', $method));
+        }
+
         return $this->evalResult;
     }
 }

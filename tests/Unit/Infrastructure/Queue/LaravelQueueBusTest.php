@@ -60,9 +60,9 @@ final readonly class InMemoryQueueCommandJobMapper implements QueueCommandJobMap
 
 final class InMemoryDispatcher implements Dispatcher
 {
-    public object $lastCommand;
+    public mixed $lastCommand = null;
 
-    public object $lastSyncCommand;
+    public mixed $lastSyncCommand = null;
 
     public mixed $dispatchResult = null;
 

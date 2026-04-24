@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Infrastructure\Database\Eloquent;
 
 use Database\Factories\ProductFactory;
+use Domain\Product\ValueObject\Price;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -44,7 +46,6 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'price' => 'decimal:2',
             'in_stock' => 'boolean',
             'rating' => 'float',
             'created_at' => 'datetime',
@@ -60,8 +61,29 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    protected function price(): Attribute
+    {
+        return Attribute::make(
+            get: static fn (mixed $value): string => Price::fromMinorUnits(self::rawPriceToMinorUnits($value))->value(),
+            set: static fn (mixed $value): int => Price::fromInput(is_string($value) || is_int($value) || is_float($value) ? $value : throw new \InvalidArgumentException('Price must be a numeric scalar.'))->minorUnits(),
+        );
+    }
+
     protected static function newFactory(): ProductFactory
     {
         return ProductFactory::new();
+    }
+
+    private static function rawPriceToMinorUnits(mixed $value): int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (is_string($value) && ctype_digit($value)) {
+            return (int) $value;
+        }
+
+        throw new \InvalidArgumentException('Stored product price must be an integer minor-units value.');
     }
 }

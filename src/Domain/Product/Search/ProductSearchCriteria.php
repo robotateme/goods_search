@@ -12,8 +12,8 @@ final readonly class ProductSearchCriteria
 {
     public function __construct(
         public ?string $query,
-        public ?float $priceFrom,
-        public ?float $priceTo,
+        public ?string $priceFrom,
+        public ?string $priceTo,
         public ?CategoryId $categoryId,
         public ?bool $inStock,
         public ?float $ratingFrom,
@@ -29,8 +29,8 @@ final readonly class ProductSearchCriteria
 
     public static function fromInput(
         ?string $query,
-        ?float $priceFrom,
-        ?float $priceTo,
+        ?string $priceFrom,
+        ?string $priceTo,
         ?int $categoryId,
         ?bool $inStock,
         ?float $ratingFrom,
