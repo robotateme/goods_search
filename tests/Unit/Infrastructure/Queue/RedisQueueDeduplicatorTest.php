@@ -65,7 +65,7 @@ final class FakeEvalRedisConnection extends Connection
     public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void {}
 
     /**
-     * @param  array<int, mixed>  $parameters
+     * @param  array<array-key, mixed>  $parameters
      */
     #[Override]
     public function command($method, array $parameters = []): mixed

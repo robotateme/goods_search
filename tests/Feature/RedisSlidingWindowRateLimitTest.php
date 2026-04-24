@@ -75,10 +75,8 @@ final class FeatureFakeRedisConnection extends Connection
     public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void {}
 
     /**
+     * @param  array<array-key, mixed>  $parameters
      * @return array{0:int,1:int,2:int}
-     */
-    /**
-     * @param  array<int, mixed>  $parameters
      */
     #[Override]
     public function command($method, array $parameters = []): mixed

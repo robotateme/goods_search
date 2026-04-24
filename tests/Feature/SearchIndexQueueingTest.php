@@ -80,7 +80,7 @@ class SearchIndexQueueingTest extends TestCase
                     public function createSubscription($channels, \Closure $callback, $method = 'subscribe'): void {}
 
                     /**
-                     * @param  array<int, mixed>  $parameters
+                     * @param  array<array-key, mixed>  $parameters
                      */
                     #[Override]
                     public function command($method, array $parameters = []): mixed
