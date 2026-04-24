@@ -18,6 +18,7 @@
 ## Стек
 
 - PHP 8.5+
+- Node.js 20+
 - Laravel 13
 - PostgreSQL
 - Redis
@@ -37,12 +38,20 @@
 composer install
 npm install
 ./vendor/bin/sail up -d
+./vendor/bin/sail artisan storage:link
 ./vendor/bin/sail artisan key:generate
 ./vendor/bin/sail artisan migrate
 ./vendor/bin/sail artisan db:seed
 ./vendor/bin/sail artisan search:products:sync
 ./vendor/bin/sail artisan search:products:import
+./vendor/bin/sail composer docs:openapi
 curl "http://localhost/api/products?page=1&per_page=20"
+```
+
+Для обзора доступных команд можно использовать:
+
+```bash
+make help
 ```
 
 ## Requirements
@@ -66,5 +75,9 @@ curl "http://localhost/api/products?page=1&per_page=20"
 ```bash
 ./vendor/bin/sail artisan test
 vendor/bin/phpstan analyse app src tests routes database bootstrap --no-progress --memory-limit=512M --level=8
-composer docs:openapi
+./vendor/bin/sail composer docs:openapi
 ```
+
+После генерации файлы лежат в `storage/api-docs/openapi.yaml` и `storage/api-docs/openapi.json`.
+
+Laravel отдает спецификацию по адресам `GET /openapi.yaml` и `GET /openapi.json`.

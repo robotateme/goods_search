@@ -72,7 +72,7 @@ final class ProductPageCacheSerializer
         }
 
         return new ProductPage(
-            items: array_map(
+            items: array_values(array_map(
                 fn (array $item): Product => new Product(
                     id: new ProductId($this->int($item['id'] ?? null)),
                     name: $this->string($item['name'] ?? null),
@@ -84,7 +84,7 @@ final class ProductPageCacheSerializer
                     updatedAt: $this->dateTime($item['updated_at'] ?? null),
                 ),
                 $payload['items'],
-            ),
+            )),
             total: $payload['total'],
             perPage: new PerPage($payload['per_page']),
             currentPage: new Page($payload['current_page']),

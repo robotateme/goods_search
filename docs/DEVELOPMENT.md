@@ -101,14 +101,20 @@ vendor/bin/phpstan analyse app src tests routes database bootstrap --no-progress
 Генерация OpenAPI spec:
 
 ```bash
-composer docs:openapi
+./vendor/bin/sail composer docs:openapi
 ```
 
-После генерации файл будет лежать в:
+После генерации файлы будут лежать в:
 
 ```text
 storage/api-docs/openapi.yaml
+storage/api-docs/openapi.json
 ```
+
+Laravel отдает спецификацию по адресам:
+
+- `GET /openapi.yaml`
+- `GET /openapi.json`
 
 В тестах используется `SEARCH_DRIVER=database`, поэтому живой Meilisearch не нужен.
 
@@ -119,4 +125,5 @@ storage/api-docs/openapi.yaml
 ./vendor/bin/sail artisan search:products:import
 ./vendor/bin/sail artisan test
 vendor/bin/phpstan analyse app src tests routes database bootstrap --no-progress --memory-limit=512M --level=8
+make help
 ```

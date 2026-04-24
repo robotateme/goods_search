@@ -64,7 +64,8 @@
         ],
         "docs:openapi": [
             "@php -r \"is_dir('storage/api-docs') || mkdir('storage/api-docs', 0777, true);\"",
-            "vendor/bin/openapi app --output storage/api-docs/openapi.yaml"
+            "vendor/bin/openapi app --format yaml --output storage/api-docs/openapi.yaml",
+            "vendor/bin/openapi app --format json --output storage/api-docs/openapi.json"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
